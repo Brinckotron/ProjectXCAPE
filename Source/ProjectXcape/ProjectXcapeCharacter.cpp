@@ -38,6 +38,10 @@ AProjectXcapeCharacter::AProjectXcapeCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	InspectOrigin = CreateDefaultSubobject<USceneComponent>(TEXT("InspectOrigin"));
+	InspectOrigin->SetupAttachment(FirstPersonCameraComponent);
+	InspectOrigin->SetRelativeLocation(FVector(40.f, 0.f, 0.f));
+
 }
 
 void AProjectXcapeCharacter::BeginPlay()
@@ -48,6 +52,7 @@ void AProjectXcapeCharacter::BeginPlay()
 	auto UserWidget = CreateWidget(GetWorld(), PlayerWidgetClass);
 	PlayerWidget = Cast<UPlayerWidget>(UserWidget);
 	PlayerWidget->AddToViewport();
+	PlayerWidget->SetPromptF(false);
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -66,10 +71,45 @@ void AProjectXcapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::Look);
+
+		EnhancedInputComponent->BindAction(InspectEnterAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectEnter);
+
+		EnhancedInputComponent->BindAction(InspectExitAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectExit);
+
+		EnhancedInputComponent->BindAction(InspectRotateAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectRotate);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
+
+void AProjectXcapeCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (!IsInspecting)
+	{
+		FHitResult Hit;
+		FVector Start = FirstPersonCameraComponent->GetComponentLocation();
+		FVector End = Start + FirstPersonCameraComponent->GetForwardVector() * 5000.f;
+		
+		FCollisionObjectQueryParams ObjectQueryParams;
+		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+		
+		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()))
+		{
+			CurrentInspectorActor = Hit.GetActor();
+			PlayerWidget->SetPromptF(true);
+		}
+		else
+		{
+			CurrentInspectorActor = nullptr;
+			PlayerWidget->SetPromptF(false);
+		}
 	}
 }
 
@@ -99,3 +139,39 @@ void AProjectXcapeCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+
+void AProjectXcapeCharacter::InspectEnter()
+{
+	auto PlayerController = Cast<APlayerController>(GetController());
+	auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	InputSubsystem->RemoveMappingContext(DefaultMappingContext);
+	InputSubsystem->AddMappingContext(InspectMappingContext, 0);
+
+	if (!IsInspecting && IsValid(CurrentInspectorActor))
+	{
+		IsInspecting = true;
+		PlayerWidget->SetPromptF(false);
+		InspectOrigin->SetRelativeRotation(FRotator::ZeroRotator);
+		InitialInspectTransform = CurrentInspectorActor->GetActorTransform();
+		CurrentInspectorActor->AttachToComponent(InspectOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+}
+
+void AProjectXcapeCharacter::InspectExit()
+{
+
+	IsInspecting = false;
+	CurrentInspectorActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentInspectorActor->SetActorTransform(InitialInspectTransform);
+	CurrentInspectorActor = nullptr;
+	
+	auto PlayerController = Cast<APlayerController>(GetController());
+	auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	InputSubsystem->RemoveMappingContext(InspectMappingContext);
+	InputSubsystem->AddMappingContext(DefaultMappingContext, 0);
+}
+
+void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
+{
+}
+
