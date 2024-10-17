@@ -9,7 +9,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/LocalPlayer.h"
+#include "Private/PlayerWidget.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -42,6 +44,10 @@ void AProjectXcapeCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+
+	auto UserWidget = CreateWidget(GetWorld(), PlayerWidgetClass);
+	PlayerWidget = Cast<UPlayerWidget>(UserWidget);
+	PlayerWidget->AddToViewport();
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
