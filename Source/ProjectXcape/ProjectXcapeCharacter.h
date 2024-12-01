@@ -37,6 +37,9 @@ class AProjectXcapeCharacter : public ACharacter
 	UInputAction* InspectEnterAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* PauseAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* InspectExitAction;
 
 	/** Move Input Action */
@@ -74,6 +77,8 @@ protected:
 	void InspectEnter();
 	void InspectExit();
 	void InspectRotate(const FInputActionValue& Value);
+
+	void Pause();
 
 protected:
 	// APawn interface

@@ -12,6 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Engine/LocalPlayer.h"
 #include "Private/PlayerWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -53,6 +54,7 @@ void AProjectXcapeCharacter::BeginPlay()
 	PlayerWidget = Cast<UPlayerWidget>(UserWidget);
 	PlayerWidget->AddToViewport();
 	PlayerWidget->SetPromptF(false);
+	InitialInspectTransform = GetActorTransform();
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -77,6 +79,8 @@ void AProjectXcapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(InspectExitAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectExit);
 
 		EnhancedInputComponent->BindAction(InspectRotateAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectRotate);
+
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &AProjectXcapeCharacter::Pause);
 	}
 	else
 	{
@@ -92,7 +96,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 	{
 		FHitResult Hit;
 		FVector Start = FirstPersonCameraComponent->GetComponentLocation();
-		FVector End = Start + FirstPersonCameraComponent->GetForwardVector() * 5000.f;
+		FVector End = Start + FirstPersonCameraComponent->GetForwardVector() * 150.f;
 		
 		FCollisionObjectQueryParams ObjectQueryParams;
 		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -100,7 +104,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
 		
-		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()))
+		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()) && Hit.GetActor()->ActorHasTag("Inspectable"))
 		{
 			CurrentInspectorActor = Hit.GetActor();
 			PlayerWidget->SetPromptF(true);
@@ -144,11 +148,12 @@ void AProjectXcapeCharacter::InspectEnter()
 {
 	auto PlayerController = Cast<APlayerController>(GetController());
 	auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	InputSubsystem->RemoveMappingContext(DefaultMappingContext);
-	InputSubsystem->AddMappingContext(InspectMappingContext, 0);
+	
 
-	if (!IsInspecting && IsValid(CurrentInspectorActor))
+	if (!IsInspecting && CurrentInspectorActor != nullptr && CurrentInspectorActor->ActorHasTag("Inspectable"))
 	{
+		InputSubsystem->RemoveMappingContext(DefaultMappingContext);
+		InputSubsystem->AddMappingContext(InspectMappingContext, 0);
 		IsInspecting = true;
 		PlayerWidget->SetPromptF(false);
 		InspectOrigin->SetRelativeRotation(FRotator::ZeroRotator);
@@ -159,10 +164,12 @@ void AProjectXcapeCharacter::InspectEnter()
 
 void AProjectXcapeCharacter::InspectExit()
 {
-
 	IsInspecting = false;
-	CurrentInspectorActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	CurrentInspectorActor->SetActorTransform(InitialInspectTransform);
+	if (CurrentInspectorActor != nullptr)
+	{
+		CurrentInspectorActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		CurrentInspectorActor->SetActorTransform(InitialInspectTransform);
+	}
 	CurrentInspectorActor = nullptr;
 	
 	auto PlayerController = Cast<APlayerController>(GetController());
@@ -173,5 +180,17 @@ void AProjectXcapeCharacter::InspectExit()
 
 void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
 {
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	InspectOrigin->SetRelativeRotation(InspectOrigin->GetRelativeRotation() + FRotator(LookAxisVector.Y, LookAxisVector.X, 0));
+	
+}
+
+void AProjectXcapeCharacter::Pause()
+{
+
+	if (GetWorld())
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
+	}
 }
 
