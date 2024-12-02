@@ -17,4 +17,8 @@ class UPlayerWidget : public UUserWidget
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetPromptF(bool Visible);
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowPauseMenu(bool Visible);
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateSelected(int index);
 };

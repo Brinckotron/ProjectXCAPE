@@ -13,6 +13,7 @@
 #include "Engine/LocalPlayer.h"
 #include "Private/PlayerWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "Tests/AutomationCommon.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -42,6 +43,7 @@ AProjectXcapeCharacter::AProjectXcapeCharacter()
 	InspectOrigin = CreateDefaultSubobject<USceneComponent>(TEXT("InspectOrigin"));
 	InspectOrigin->SetupAttachment(FirstPersonCameraComponent);
 	InspectOrigin->SetRelativeLocation(FVector(40.f, 0.f, 0.f));
+	pauseSelectIndex = 0;
 
 }
 
@@ -54,7 +56,9 @@ void AProjectXcapeCharacter::BeginPlay()
 	PlayerWidget = Cast<UPlayerWidget>(UserWidget);
 	PlayerWidget->AddToViewport();
 	PlayerWidget->SetPromptF(false);
+	PlayerWidget->ShowPauseMenu(false);
 	InitialInspectTransform = GetActorTransform();
+	
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -81,6 +85,14 @@ void AProjectXcapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(InspectRotateAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectRotate);
 
 		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &AProjectXcapeCharacter::Pause);
+
+		EnhancedInputComponent->BindAction(SelectUpAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::SelectUp);
+
+		EnhancedInputComponent->BindAction(SelectDownAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::SelectDown);
+
+		EnhancedInputComponent->BindAction(ConfirmSelectAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::ConfirmSelect);
+
+		
 	}
 	else
 	{
@@ -182,7 +194,6 @@ void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
 {
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 	InspectOrigin->SetRelativeRotation(InspectOrigin->GetRelativeRotation() + FRotator(LookAxisVector.Y, LookAxisVector.X, 0));
-	
 }
 
 void AProjectXcapeCharacter::Pause()
@@ -190,7 +201,65 @@ void AProjectXcapeCharacter::Pause()
 
 	if (GetWorld())
 	{
-		UGameplayStatics::SetGamePaused(GetWorld(), !UGameplayStatics::IsGamePaused(GetWorld()));
+		bool isPaused = UGameplayStatics::IsGamePaused(GetWorld());
+		UGameplayStatics::SetGamePaused(GetWorld(), !isPaused);
+		PlayerWidget->ShowPauseMenu(!isPaused);
+		pauseSelectIndex = 0;
+		PlayerWidget->UpdateSelected(pauseSelectIndex);
+	}
+}
+
+void AProjectXcapeCharacter::SelectUp()
+{
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		if (pauseSelectIndex > 0)
+		{
+			pauseSelectIndex--;
+			PlayerWidget->UpdateSelected(pauseSelectIndex);
+		}
+	}
+}
+
+void AProjectXcapeCharacter::SelectDown()
+{
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		if (pauseSelectIndex < 3)
+		{
+			pauseSelectIndex++;
+			PlayerWidget->UpdateSelected(pauseSelectIndex);
+		}
+	}
+}
+
+void AProjectXcapeCharacter::ConfirmSelect()
+{
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		switch (pauseSelectIndex)
+		{
+		case 0 :
+			{
+				Pause();
+			}
+		case 1:
+			{
+				UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit,true);
+			}
+		case 2:
+			{
+				
+			}
+		case 3:
+			{
+				
+			}
+		default:
+			{
+				
+			}
+		}
 	}
 }
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "ProjectXcapeCharacter.generated.h"
@@ -37,9 +38,6 @@ class AProjectXcapeCharacter : public ACharacter
 	UInputAction* InspectEnterAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* PauseAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* InspectExitAction;
 
 	/** Move Input Action */
@@ -47,10 +45,25 @@ class AProjectXcapeCharacter : public ACharacter
 	UInputAction* MoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* PauseAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SelectUpAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SelectDownAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* ConfirmSelectAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputMappingContext* InspectMappingContext;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputMappingContext* PauseMappingContext;
 	
 public:
 	AProjectXcapeCharacter();
@@ -79,6 +92,9 @@ protected:
 	void InspectRotate(const FInputActionValue& Value);
 
 	void Pause();
+	void SelectUp();
+	void SelectDown();
+	void ConfirmSelect();
 
 protected:
 	// APawn interface
@@ -93,6 +109,8 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* InspectOrigin;
 	FTransform InitialInspectTransform;
+	UPROPERTY(EditAnywhere)
+	int pauseSelectIndex;
 	virtual void Tick(float DeltaSeconds) override;
 
 private:
