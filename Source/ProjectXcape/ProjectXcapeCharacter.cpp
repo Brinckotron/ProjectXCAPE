@@ -1,6 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ProjectXcapeCharacter.h"
+
+#include <string>
+
 #include "ProjectXcapeProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -44,6 +47,7 @@ AProjectXcapeCharacter::AProjectXcapeCharacter()
 	InspectOrigin->SetupAttachment(FirstPersonCameraComponent);
 	InspectOrigin->SetRelativeLocation(FVector(40.f, 0.f, 0.f));
 	pauseSelectIndex = 0;
+	mouseSensitivity = 1.f;
 
 }
 
@@ -90,6 +94,10 @@ void AProjectXcapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 
 		EnhancedInputComponent->BindAction(SelectDownAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::SelectDown);
 
+		EnhancedInputComponent->BindAction(SelectLeftAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::SelectLeft);
+
+		EnhancedInputComponent->BindAction(SelectRightAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::SelectRight);
+		
 		EnhancedInputComponent->BindAction(ConfirmSelectAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::ConfirmSelect);
 
 		
@@ -151,8 +159,8 @@ void AProjectXcapeCharacter::Look(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		AddControllerYawInput(LookAxisVector.X * mouseSensitivity);
+		AddControllerPitchInput(LookAxisVector.Y * mouseSensitivity);
 	}
 }
 
@@ -206,6 +214,10 @@ void AProjectXcapeCharacter::Pause()
 		PlayerWidget->ShowPauseMenu(!isPaused);
 		pauseSelectIndex = 0;
 		PlayerWidget->UpdateSelected(pauseSelectIndex);
+		auto PlayerController = Cast<APlayerController>(GetController());
+		auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		InputSubsystem->RemoveMappingContext(isPaused? PauseMappingContext : InspectMappingContext);
+		InputSubsystem->AddMappingContext(isPaused? InspectMappingContext : PauseMappingContext, 0);
 	}
 }
 
@@ -233,31 +245,75 @@ void AProjectXcapeCharacter::SelectDown()
 	}
 }
 
+void AProjectXcapeCharacter::SelectLeft()
+{
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		switch (pauseSelectIndex)
+		{
+		case 2:
+			{
+				
+				break;
+			}
+		case 3:
+			{
+				if (mouseSensitivity > 0.09f) mouseSensitivity -= 0.05f;
+				PlayerWidget->mouseSensitivity = mouseSensitivity;
+				break;
+			}
+		default:
+			{
+				break;
+			}
+		}
+	}	
+}
+
+void AProjectXcapeCharacter::SelectRight()
+{
+	if (UGameplayStatics::IsGamePaused(GetWorld()))
+	{
+		switch (pauseSelectIndex)
+		{
+		case 2:
+			{
+				
+				break;
+			}
+		case 3:
+			{
+				if (mouseSensitivity < 2) mouseSensitivity += 0.05f;
+				PlayerWidget->mouseSensitivity = mouseSensitivity;
+				break;
+			}
+		default:
+			{
+				break;
+			}
+		}
+	}	
+}
+
 void AProjectXcapeCharacter::ConfirmSelect()
 {
 	if (UGameplayStatics::IsGamePaused(GetWorld()))
 	{
 		switch (pauseSelectIndex)
 		{
-		case 0 :
+		case 0:
 			{
 				Pause();
+				break;
 			}
 		case 1:
 			{
 				UKismetSystemLibrary::QuitGame(GetWorld(), GetWorld()->GetFirstPlayerController(), EQuitPreference::Quit,true);
-			}
-		case 2:
-			{
-				
-			}
-		case 3:
-			{
-				
+				break;
 			}
 		default:
 			{
-				
+				break;
 			}
 		}
 	}

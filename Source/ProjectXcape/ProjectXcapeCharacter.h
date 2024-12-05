@@ -54,6 +54,12 @@ class AProjectXcapeCharacter : public ACharacter
 	UInputAction* SelectDownAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SelectLeftAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* SelectRightAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* ConfirmSelectAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
@@ -94,6 +100,8 @@ protected:
 	void Pause();
 	void SelectUp();
 	void SelectDown();
+	void SelectLeft();
+	void SelectRight();
 	void ConfirmSelect();
 
 protected:
@@ -111,6 +119,8 @@ public:
 	FTransform InitialInspectTransform;
 	UPROPERTY(EditAnywhere)
 	int pauseSelectIndex;
+	UPROPERTY(BlueprintReadWrite)
+	float mouseSensitivity;
 	virtual void Tick(float DeltaSeconds) override;
 
 private:

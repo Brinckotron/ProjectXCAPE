@@ -21,4 +21,8 @@ public:
 	void ShowPauseMenu(bool Visible);
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateSelected(int index);
+	UPROPERTY(BlueprintReadWrite)
+	float mouseSensitivity = 1.0f;
+	UPROPERTY(BlueprintReadWrite)
+	float volume = 1.0f;
 };
