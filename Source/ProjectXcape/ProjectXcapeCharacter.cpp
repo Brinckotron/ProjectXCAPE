@@ -46,6 +46,9 @@ AProjectXcapeCharacter::AProjectXcapeCharacter()
 	InspectOrigin = CreateDefaultSubobject<USceneComponent>(TEXT("InspectOrigin"));
 	InspectOrigin->SetupAttachment(FirstPersonCameraComponent);
 	InspectOrigin->SetRelativeLocation(FVector(40.f, 0.f, 0.f));
+	HoldOrigin = CreateDefaultSubobject<USceneComponent>(TEXT("HoldOrigin"));
+	HoldOrigin->SetupAttachment(FirstPersonCameraComponent);
+	HoldOrigin->SetRelativeLocation(FVector(30.f, 20.f, -10.f));
 	pauseSelectIndex = 0;
 	mouseSensitivity = 1.f;
 
@@ -59,9 +62,11 @@ void AProjectXcapeCharacter::BeginPlay()
 	auto UserWidget = CreateWidget(GetWorld(), PlayerWidgetClass);
 	PlayerWidget = Cast<UPlayerWidget>(UserWidget);
 	PlayerWidget->AddToViewport();
-	PlayerWidget->SetPromptF(false);
+	PlayerWidget->ShowInteract(false, "");
+	PlayerWidget->ShowInspect(false);
+	PlayerWidget->ShowHold(false);
 	PlayerWidget->ShowPauseMenu(false);
-	InitialInspectTransform = GetActorTransform();
+	InitialItemTransform = GetActorTransform();
 	
 }
 
@@ -82,6 +87,8 @@ void AProjectXcapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::Look);
 
+		EnhancedInputComponent->BindAction(HoldAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::HoldItem);
+		
 		EnhancedInputComponent->BindAction(InspectEnterAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectEnter);
 
 		EnhancedInputComponent->BindAction(InspectExitAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectExit);
@@ -112,7 +119,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (!IsInspecting)
+	if (!IsInspecting && !UGameplayStatics::IsGamePaused(GetWorld()))
 	{
 		FHitResult Hit;
 		FVector Start = FirstPersonCameraComponent->GetComponentLocation();
@@ -126,13 +133,24 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 		
 		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()) && Hit.GetActor()->ActorHasTag("Inspectable"))
 		{
-			CurrentInspectorActor = Hit.GetActor();
-			PlayerWidget->SetPromptF(true);
+			CurrentInteractActor = Hit.GetActor();
+			PlayerWidget->ShowInteract(true, FString(Hit.Component->GetName()));
+
+			if (CurrentInteractActor->ActorHasTag("Inspectable") && !IsHolding)
+			{
+				PlayerWidget->ShowInspect(true);
+			}
+			if (CurrentInteractActor->ActorHasTag("Holdable") && !IsHolding)
+			{
+				PlayerWidget->ShowHold(true);
+			}
 		}
 		else
 		{
-			CurrentInspectorActor = nullptr;
-			PlayerWidget->SetPromptF(false);
+			CurrentInteractActor = nullptr;
+			PlayerWidget->ShowInteract(false, "");
+			PlayerWidget->ShowInspect(false);
+			PlayerWidget->ShowHold(false);
 		}
 	}
 }
@@ -170,38 +188,80 @@ void AProjectXcapeCharacter::InspectEnter()
 	auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	
 
-	if (!IsInspecting && CurrentInspectorActor != nullptr && CurrentInspectorActor->ActorHasTag("Inspectable"))
+	if (!IsInspecting && !IsHolding && CurrentInteractActor != nullptr && CurrentInteractActor->ActorHasTag("Interactible"))
 	{
 		InputSubsystem->RemoveMappingContext(DefaultMappingContext);
 		InputSubsystem->AddMappingContext(InspectMappingContext, 0);
 		IsInspecting = true;
-		PlayerWidget->SetPromptF(false);
+		PlayerWidget->ShowInteract(false, "");
+		PlayerWidget->ShowHold(false);
+		PlayerWidget->ShowInspect(false);
 		InspectOrigin->SetRelativeRotation(FRotator::ZeroRotator);
-		InitialInspectTransform = CurrentInspectorActor->GetActorTransform();
-		CurrentInspectorActor->AttachToComponent(InspectOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		InitialItemTransform = CurrentInteractActor->GetActorTransform();
+		CurrentInteractActor->AttachToComponent(InspectOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }
 
 void AProjectXcapeCharacter::InspectExit()
 {
-	IsInspecting = false;
-	if (CurrentInspectorActor != nullptr)
+	if(IsInspecting)
 	{
-		CurrentInspectorActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		CurrentInspectorActor->SetActorTransform(InitialInspectTransform);
-	}
-	CurrentInspectorActor = nullptr;
+		IsInspecting = false;
+		if (CurrentInteractActor != nullptr)
+		{
+			CurrentInteractActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			CurrentInteractActor->SetActorTransform(InitialItemTransform);
+		}
+		CurrentInteractActor = nullptr;
 	
-	auto PlayerController = Cast<APlayerController>(GetController());
-	auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	InputSubsystem->RemoveMappingContext(InspectMappingContext);
-	InputSubsystem->AddMappingContext(DefaultMappingContext, 0);
+		auto PlayerController = Cast<APlayerController>(GetController());
+		auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		InputSubsystem->RemoveMappingContext(InspectMappingContext);
+		InputSubsystem->AddMappingContext(DefaultMappingContext, 0);
+	}
+	
 }
 
 void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
 {
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 	InspectOrigin->SetRelativeRotation(InspectOrigin->GetRelativeRotation() + FRotator(LookAxisVector.Y, LookAxisVector.X, 0));
+}
+
+void AProjectXcapeCharacter::HoldItem()
+{
+	if (IsHolding)
+	{
+		DropItem();
+		return;
+	}
+	
+	if (!IsHolding && CurrentInteractActor != nullptr && CurrentInteractActor->ActorHasTag("Holdable"))
+	{
+		IsHolding = true;
+		PlayerWidget->ShowInteract(false, "");
+		PlayerWidget->ShowInspect(false);
+		PlayerWidget->ShowHold(false);
+		InspectOrigin->SetRelativeRotation(FRotator::ZeroRotator);
+		CurrentHeldItem = CurrentInteractActor;
+		InitialItemTransform = CurrentHeldItem->GetActorTransform();
+		CurrentHeldItem->AttachToComponent(HoldOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+}
+
+void AProjectXcapeCharacter::DropItem()
+{
+	IsHolding = false;
+	if (CurrentHeldItem != nullptr)
+	{
+		CurrentHeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		CurrentHeldItem->SetActorTransform(InitialItemTransform);
+	}
+	CurrentHeldItem = nullptr;
+}
+
+void AProjectXcapeCharacter::PlaceItem()
+{
 }
 
 void AProjectXcapeCharacter::Pause()
@@ -211,13 +271,16 @@ void AProjectXcapeCharacter::Pause()
 	{
 		bool isPaused = UGameplayStatics::IsGamePaused(GetWorld());
 		UGameplayStatics::SetGamePaused(GetWorld(), !isPaused);
+		PlayerWidget->ShowInteract(false, "");
+		PlayerWidget->ShowInspect(false);
+		PlayerWidget->ShowHold(false);
 		PlayerWidget->ShowPauseMenu(!isPaused);
 		pauseSelectIndex = 0;
 		PlayerWidget->UpdateSelected(pauseSelectIndex);
 		auto PlayerController = Cast<APlayerController>(GetController());
 		auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 		InputSubsystem->RemoveMappingContext(isPaused? PauseMappingContext : InspectMappingContext);
-		InputSubsystem->AddMappingContext(isPaused? InspectMappingContext : PauseMappingContext, 0);
+		InputSubsystem->AddMappingContext(isPaused? (IsInspecting? InspectMappingContext: DefaultMappingContext ) : PauseMappingContext, 0);
 	}
 }
 

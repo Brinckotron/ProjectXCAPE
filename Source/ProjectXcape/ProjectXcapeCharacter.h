@@ -35,6 +35,9 @@ class AProjectXcapeCharacter : public ACharacter
 	UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* HoldAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* InspectEnterAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
@@ -96,6 +99,9 @@ protected:
 	void InspectEnter();
 	void InspectExit();
 	void InspectRotate(const FInputActionValue& Value);
+	void HoldItem();
+	void DropItem();
+	void PlaceItem();
 
 	void Pause();
 	void SelectUp();
@@ -116,12 +122,15 @@ public:
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* InspectOrigin;
-	FTransform InitialInspectTransform;
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* HoldOrigin;
+	FTransform InitialItemTransform;
 	UPROPERTY(EditAnywhere)
 	int pauseSelectIndex;
 	UPROPERTY(BlueprintReadWrite)
 	float mouseSensitivity;
 	virtual void Tick(float DeltaSeconds) override;
+	AActor* CurrentHeldItem;
 
 private:
 	UPROPERTY()
@@ -130,7 +139,8 @@ private:
 	TSubclassOf<UUserWidget> PlayerWidgetClass;
 
 	bool IsInspecting;
+	bool IsHolding;
 
-	AActor* CurrentInspectorActor;
+	AActor* CurrentInteractActor;
 };
 
