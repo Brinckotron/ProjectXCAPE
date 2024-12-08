@@ -26,8 +26,8 @@ public:
 	UStaticMeshComponent* Brazier;
 	UPROPERTY(EditAnywhere, Category = "Brazier")
 	UNiagaraComponent* FireEffect;
-	//UPROPERTY(EditAnywhere)
-	//UPointLightComponent* LightSource;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPointLightComponent* LightSource;
 	UPROPERTY(EditAnywhere)
 	bool IsLit;
 

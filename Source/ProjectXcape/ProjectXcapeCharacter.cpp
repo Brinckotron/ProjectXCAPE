@@ -232,7 +232,7 @@ void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
 void AProjectXcapeCharacter::HoldItem()
 {
 
-	if(CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
+	if(CurrentInteractActor && CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
 	{
 		IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
 		if (Interactible)
