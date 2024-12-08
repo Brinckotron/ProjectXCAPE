@@ -12,6 +12,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Interactible.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/LocalPlayer.h"
 #include "Private/PlayerWidget.h"
@@ -131,7 +132,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
 		
-		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()) && Hit.GetActor()->ActorHasTag("Inspectable"))
+		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()) && Hit.GetActor()->ActorHasTag("Interactible"))
 		{
 			CurrentInteractActor = Hit.GetActor();
 			PlayerWidget->ShowInteract(true, FString(Hit.Component->GetName()));
@@ -230,6 +231,16 @@ void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
 
 void AProjectXcapeCharacter::HoldItem()
 {
+
+	if(CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
+	{
+		IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
+		if (Interactible)
+		{
+			Interactible->Interact(this);
+		}
+	}
+	
 	if (IsHolding)
 	{
 		DropItem();
@@ -242,7 +253,7 @@ void AProjectXcapeCharacter::HoldItem()
 		PlayerWidget->ShowInteract(false, "");
 		PlayerWidget->ShowInspect(false);
 		PlayerWidget->ShowHold(false);
-		InspectOrigin->SetRelativeRotation(FRotator::ZeroRotator);
+		HoldOrigin->SetRelativeRotation(FRotator(-10.f, 0.f, -5.f));
 		CurrentHeldItem = CurrentInteractActor;
 		InitialItemTransform = CurrentHeldItem->GetActorTransform();
 		CurrentHeldItem->AttachToComponent(HoldOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
