@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Components/PointLightComponent.h"
 #include "ProjectXcape/Public/Interactible.h"
 #include "BrazierBowl.generated.h"
 
@@ -25,6 +26,8 @@ public:
 	UStaticMeshComponent* Brazier;
 	UPROPERTY(EditAnywhere, Category = "Brazier")
 	UNiagaraComponent* FireEffect;
+	//UPROPERTY(EditAnywhere)
+	//UPointLightComponent* LightSource;
 	UPROPERTY(EditAnywhere)
 	bool IsLit;
 

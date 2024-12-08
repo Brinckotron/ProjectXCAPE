@@ -13,6 +13,8 @@ ABrazierBowl::ABrazierBowl()
 	RootComponent = Brazier;
 	FireEffect = CreateDefaultSubobject<UNiagaraComponent>("FireEffect");
 	FireEffect->AttachToComponent(Brazier, FAttachmentTransformRules::KeepRelativeTransform);
+	//LightSource = CreateDefaultSubobject<UPointLightComponent>("LightSource");
+	//LightSource->AttachToComponent(FireEffect, FAttachmentTransformRules::KeepRelativeTransform);
 	IsLit = false;
 
 }
@@ -21,7 +23,15 @@ ABrazierBowl::ABrazierBowl()
 void ABrazierBowl::BeginPlay()
 {
 	Super::BeginPlay();
-	if(FireEffect && IsLit) LightFire();
+	if(FireEffect && IsLit)
+	{
+		LightFire();
+	}
+	else
+	{
+		//LightSource->SetVisibility(false);
+	}
+	
 }
 
 // Called every frame
@@ -41,6 +51,7 @@ void ABrazierBowl::LightFire()
 	if (!IsLit && FireEffect)
 	{
 		FireEffect->ActivateSystem();
+		//LightSource->SetVisibility(true);
 		IsLit = true;
 	}
 }
