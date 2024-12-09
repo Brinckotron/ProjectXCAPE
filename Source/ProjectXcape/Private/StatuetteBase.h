@@ -3,34 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interactible.h"
 #include "GameFramework/Actor.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
-#include "Components/PointLightComponent.h"
-#include "ProjectXcape/Public/Interactible.h"
-#include "BrazierBowl.generated.h"
-
-
-
-
+#include "StatuetteBase.generated.h"
 
 UCLASS()
-class ABrazierBowl : public AActor, public IInteractible
+class AStatuetteBase : public AActor, public IInteractible
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ABrazierBowl();
-	UPROPERTY(EditAnywhere, Category = "Brazier")
-	UStaticMeshComponent* Brazier;
-	UPROPERTY(EditAnywhere, Category = "Brazier")
-	UNiagaraComponent* FireEffect;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UPointLightComponent* LightSource;
+	AStatuetteBase();
 	UPROPERTY(EditAnywhere)
-	bool IsLit;
-
+	UStaticMeshComponent* Base;
+	UPROPERTY(EditAnywhere)
+	USceneComponent* SlotPoint;
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,14 +28,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void Interact(AActor* Interactor) override;
-
 	virtual FString ShowInteractText(AActor* Interactor) override;
-
 	virtual FString ShowName() override;
 
-	void LightFire();
-	
-	
 };

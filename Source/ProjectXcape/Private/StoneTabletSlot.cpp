@@ -3,6 +3,8 @@
 
 #include "StoneTabletSlot.h"
 
+#include "ProjectXcape/ProjectXcapeCharacter.h"
+
 // Sets default values
 AStoneTabletSlot::AStoneTabletSlot()
 {
@@ -32,11 +34,34 @@ void AStoneTabletSlot::Tick(float DeltaTime)
 
 }
 
-void AStoneTabletSlot::PlaceTablet(AStoneTablet* Tablet)
+void AStoneTabletSlot::Interact(AActor* Interactor)
 {
-	CurrentTablet = Tablet;
-	OnSlotUpdated.Broadcast();
+	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
+	auto Tablet = Cast<AStoneTablet>(Player->Inventory[Player->CurrentItemIndex]);
+	if (Tablet)
+	{
+		Player->PlaceItem(TabletSnapPoint);
+		CurrentTablet = Tablet;
+	}
 }
+
+FString AStoneTabletSlot::ShowInteractText(AActor* Interactor)
+{
+	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
+	FString string;
+	auto Tablet = Cast<AStoneTablet>(Player->Inventory[Player->CurrentItemIndex]);
+	if (Tablet)
+	{
+		string = "R to place " + Tablet->ItemName();
+	}
+	return string;
+}
+
+FString AStoneTabletSlot::ShowName()
+{
+	return "Tablet Slot";
+}
+
 
 bool AStoneTabletSlot::IsCorrectTablet() const
 {

@@ -21,6 +21,8 @@
 #include "Tests/AutomationCommon.h"
 #include "BrazierBowl.h"
 #include "Torch.h"
+#include "Statuette.h"
+#include "StatuetteBase.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -147,34 +149,26 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 
 		FCollisionQueryParams QueryParams;
 		QueryParams.AddIgnoredActor(this);
+
+		PlayerWidget->ShowName(false, "");
+		PlayerWidget->ShowInspect(false);
+		PlayerWidget->ShowInteract(false, "");
 		
 		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()) && Hit.GetActor()->ActorHasTag("Interactible"))
 		{
 			CurrentInteractActor = Hit.GetActor();
 			FString Name = Hit.Component->GetName();
 
-			if (CurrentInteractActor)
+			if (CurrentInteractActor && CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
 			{
-				auto Brazier = Cast<ABrazierBowl>(CurrentInteractActor);
-				if (Brazier)
+				IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
+				if (Interactible)
 				{
-						auto Torch = Cast<ATorch>(Inventory[CurrentItemIndex]);
-						if (Torch)
-						{
-							if (Brazier->IsLit && !Torch->IsLit)
-							{
-								PlayerWidget->ShowInteract(true, "R to Light Torch");
-							}
-							else if (!Brazier->IsLit && Torch->IsLit)
-							{
-								PlayerWidget->ShowInteract(true, "R to Light Brazier");
-							}
-						}
+					Name = Interactible->ShowName();
+					PlayerWidget->ShowInteract(true,Interactible->ShowInteractText(this));
 				}
 			}
 			
-			
-
 			if(CurrentInteractActor && CurrentInteractActor->GetClass()->ImplementsInterface(UInventoryItem::StaticClass()))
 			{
 				IInventoryItem* InventoryItem = Cast<IInventoryItem>(CurrentInteractActor);
@@ -186,11 +180,11 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 			
 			PlayerWidget->ShowName(true, Name);
 
-			if (CurrentInteractActor->ActorHasTag("Inspectable") && !IsHolding)
+			if (CurrentInteractActor->ActorHasTag("Inspectable"))
 			{
 				PlayerWidget->ShowInspect(true);
 			}
-			if (CurrentInteractActor->ActorHasTag("Holdable") && !IsHolding)
+			if (CurrentInteractActor->ActorHasTag("Holdable"))
 			{
 				PlayerWidget->ShowInteract(true, "R to take");
 			}
@@ -200,9 +194,6 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 		else
 		{
 			CurrentInteractActor = nullptr;
-			PlayerWidget->ShowName(false, "");
-			PlayerWidget->ShowInspect(false);
-			PlayerWidget->ShowInteract(false, "");
 		}
 	}
 }
@@ -283,31 +274,12 @@ void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
 void AProjectXcapeCharacter::Interact()
 {
 
-	if (CurrentInteractActor)
+	if (CurrentInteractActor && CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
 	{
-		auto Brazier = Cast<ABrazierBowl>(CurrentInteractActor);
-		if (Brazier)
+		IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
+		if (Interactible)
 		{
-				auto Torch = Cast<ATorch>(Inventory[CurrentItemIndex]);
-				if (Torch)
-				{
-					if (Brazier->IsLit && !Torch->IsLit)
-					{
-						Torch->LightTorch();
-					}
-					else if (!Brazier->IsLit && Torch->IsLit)
-					{
-						Brazier->LightFire();
-					}
-				}
-		}
-		else if (CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
-		{
-			IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
-			if (Interactible)
-			{
-				Interactible->Interact(this);
-			}
+			Interactible->Interact(this);
 		}
 	}
 	
@@ -340,10 +312,13 @@ void AProjectXcapeCharacter::StoreItem()
 	DouseTorch();
 }
 
-void AProjectXcapeCharacter::PlaceItem()
+void AProjectXcapeCharacter::PlaceItem(USceneComponent* AttachPoint)
 {
 	Inventory[CurrentItemIndex]->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	//Inventory.RemoveAt(CurrentItemIndex);
+	Inventory[CurrentItemIndex]->AttachToComponent(AttachPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Inventory.RemoveAt(CurrentItemIndex);
+	CurrentItemIndex =  0;
+	EquipItem();
 	
 }
 

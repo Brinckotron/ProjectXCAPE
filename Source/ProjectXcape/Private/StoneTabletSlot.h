@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Interactible.h"
 #include "StoneTablet.h"
 #include "GameFramework/Actor.h"
 #include "StoneTabletSlot.generated.h"
 
 UCLASS()
-class AStoneTabletSlot : public AActor
+class AStoneTabletSlot : public AActor, public IInteractible
 {
 	GENERATED_BODY()
 	
@@ -23,6 +24,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void Interact(AActor* Interactor) override;
+	virtual FString ShowInteractText(AActor* Interactor) override;
+	virtual FString ShowName() override;
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* Slot;
@@ -32,16 +36,13 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
 	int32 SlotID;
-	
-	UPROPERTY(BlueprintReadWrite, Category = "Puzzle")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
 	AStoneTablet* CurrentTablet;
 	
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSlotUpdated);
 	UPROPERTY(BlueprintAssignable, Category = "Puzzle")
 	FOnSlotUpdated OnSlotUpdated;
-	
-	UFUNCTION(BlueprintCallable, Category = "Puzzle")
-	void PlaceTablet(AStoneTablet* Tablet);
 	
 	UFUNCTION(BlueprintCallable, Category = "Puzzle")
 	bool IsCorrectTablet() const;

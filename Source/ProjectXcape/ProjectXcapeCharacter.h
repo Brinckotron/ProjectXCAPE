@@ -109,7 +109,6 @@ protected:
 	void Interact();
 	void DouseTorch();
 	void StoreItem();
-	void PlaceItem();
 	void EquipItem();
 	void CycleInventoryUp();
 	void CycleInventoryDown();
@@ -147,6 +146,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	AEmptyHand* EmptyHand;
 	FVector InventoryStorePoint;
+	void PlaceItem(USceneComponent* AttachPoint);
 
 private:
 	UPROPERTY()

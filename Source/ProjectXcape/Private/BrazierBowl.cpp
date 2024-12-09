@@ -3,6 +3,9 @@
 
 #include "BrazierBowl.h"
 
+#include "Torch.h"
+#include "ProjectXcape/ProjectXcapeCharacter.h"
+
 // Sets default values
 ABrazierBowl::ABrazierBowl()
 {
@@ -43,11 +46,44 @@ void ABrazierBowl::Tick(float DeltaTime)
 
 void ABrazierBowl::Interact(AActor* Interactor)
 {
-	if (!IsLit && FireEffect)
+	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
+	auto Torch = Cast<ATorch>(Player->Inventory[Player->CurrentItemIndex]);
+	if (Torch)
 	{
-	LightFire();
+		if (IsLit && !Torch->IsLit)
+		{
+			Torch->LightTorch();
+		}
+		else if (!IsLit && Torch->IsLit)
+		{
+			LightFire();
+		}
 	}
+}
 
+FString ABrazierBowl::ShowInteractText(AActor* Interactor)
+{
+	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
+	FString string = "";
+
+	auto Torch = Cast<ATorch>(Player->Inventory[Player->CurrentItemIndex]);
+	if (Torch)
+	{
+		if (IsLit && !Torch->IsLit)
+		{
+			string = "R to Light Torch";
+		}
+		else if (!IsLit && Torch->IsLit)
+		{
+			string = "R to Light Brazier";
+		}
+	}
+	return string;
+}
+
+FString ABrazierBowl::ShowName()
+{
+	return "Brazier";
 }
 
 void ABrazierBowl::LightFire()
