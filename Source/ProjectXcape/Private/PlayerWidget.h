@@ -25,6 +25,8 @@ public:
 	void ShowPauseMenu(bool Visible);
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateSelected(int index);
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateItem(const FString& Name);
 	UPROPERTY(BlueprintReadWrite)
 	float mouseSensitivity = 1.0f;
 	UPROPERTY(BlueprintReadWrite)

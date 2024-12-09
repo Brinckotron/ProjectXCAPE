@@ -352,6 +352,9 @@ void AProjectXcapeCharacter::EquipItem()
 	//Inventory[CurrentItemIndex]
 	HoldOrigin->SetRelativeRotation(FRotator(-10.f, 0.f, -5.f));
 	Inventory[CurrentItemIndex]->AttachToComponent(HoldOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+	auto Item = Cast<IInventoryItem>(Inventory[CurrentItemIndex]);
+	PlayerWidget->UpdateItem(Item->ItemName());
 }
 
 void AProjectXcapeCharacter::CycleInventoryUp()
