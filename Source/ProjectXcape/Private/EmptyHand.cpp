@@ -1,37 +1,32 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "StoneTablet.h"
+#include "EmptyHand.h"
 
 // Sets default values
-AStoneTablet::AStoneTablet()
+AEmptyHand::AEmptyHand()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Tablet = CreateDefaultSubobject<UStaticMeshComponent>("Tablet");
-	RootComponent = Tablet;
-
-	TabletName = "Stone Tablet";
-	
 }
 
 // Called when the game starts or when spawned
-void AStoneTablet::BeginPlay()
+void AEmptyHand::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void AStoneTablet::Tick(float DeltaTime)
+void AEmptyHand::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-FString AStoneTablet::ItemName()
+FString AEmptyHand::ItemName()
 {
-	return TabletName;
+	return "";
 }
 

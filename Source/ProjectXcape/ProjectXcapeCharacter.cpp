@@ -13,11 +13,14 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Interactible.h"
+#include "InventoryItem.h"
 #include "Blueprint/UserWidget.h"
 #include "Engine/LocalPlayer.h"
 #include "Private/PlayerWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Tests/AutomationCommon.h"
+#include "BrazierBowl.h"
+#include "Torch.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,6 +55,8 @@ AProjectXcapeCharacter::AProjectXcapeCharacter()
 	HoldOrigin->SetRelativeLocation(FVector(30.f, 20.f, -10.f));
 	pauseSelectIndex = 0;
 	mouseSensitivity = 1.f;
+	CurrentItemIndex = 0;
+	
 
 }
 
@@ -63,9 +68,9 @@ void AProjectXcapeCharacter::BeginPlay()
 	auto UserWidget = CreateWidget(GetWorld(), PlayerWidgetClass);
 	PlayerWidget = Cast<UPlayerWidget>(UserWidget);
 	PlayerWidget->AddToViewport();
-	PlayerWidget->ShowInteract(false, "");
+	PlayerWidget->ShowName(false, "");
 	PlayerWidget->ShowInspect(false);
-	PlayerWidget->ShowHold(false);
+	PlayerWidget->ShowInteract(false, "");
 	PlayerWidget->ShowPauseMenu(false);
 	InitialItemTransform = GetActorTransform();
 	
@@ -88,7 +93,12 @@ void AProjectXcapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::Look);
 
-		EnhancedInputComponent->BindAction(HoldAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::HoldItem);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::Interact);
+
+		EnhancedInputComponent->BindAction(InventoryCycleUpAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::CycleInventoryUp);
+
+		EnhancedInputComponent->BindAction(InventoryCycleDownAction, ETriggerEvent::Started, this, &AProjectXcapeCharacter::CycleInventoryDown);
+
 		
 		EnhancedInputComponent->BindAction(InspectEnterAction, ETriggerEvent::Triggered, this, &AProjectXcapeCharacter::InspectEnter);
 
@@ -124,7 +134,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 	{
 		FHitResult Hit;
 		FVector Start = FirstPersonCameraComponent->GetComponentLocation();
-		FVector End = Start + FirstPersonCameraComponent->GetForwardVector() * 150.f;
+		FVector End = Start + FirstPersonCameraComponent->GetForwardVector() * 180.f;
 		
 		FCollisionObjectQueryParams ObjectQueryParams;
 		ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -135,7 +145,43 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 		if(GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ObjectQueryParams, QueryParams) && IsValid(Hit.GetActor()) && Hit.GetActor()->ActorHasTag("Interactible"))
 		{
 			CurrentInteractActor = Hit.GetActor();
-			PlayerWidget->ShowInteract(true, FString(Hit.Component->GetName()));
+			FString Name = Hit.Component->GetName();
+
+			if (CurrentInteractActor)
+			{
+				auto Brazier = Cast<ABrazierBowl>(CurrentInteractActor);
+				if (Brazier)
+				{
+					if (CurrentHeldItem)
+					{
+						auto Torch = Cast<ATorch>(CurrentHeldItem);
+						if (Torch)
+						{
+							if (Brazier->IsLit && !Torch->IsLit)
+							{
+								PlayerWidget->ShowInteract(true, "R to Light Torch");
+							}
+							else if (!Brazier->IsLit && Torch->IsLit)
+							{
+								PlayerWidget->ShowInteract(true, "R to Light Brazier");
+							}
+						}
+					}
+				}
+			}
+			
+			
+
+			if(CurrentInteractActor && CurrentInteractActor->GetClass()->ImplementsInterface(UInventoryItem::StaticClass()))
+			{
+				IInventoryItem* InventoryItem = Cast<IInventoryItem>(CurrentInteractActor);
+				if (InventoryItem)
+				{
+					Name = InventoryItem->ItemName();
+				}
+			}
+			
+			PlayerWidget->ShowName(true, Name);
 
 			if (CurrentInteractActor->ActorHasTag("Inspectable") && !IsHolding)
 			{
@@ -143,15 +189,17 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 			}
 			if (CurrentInteractActor->ActorHasTag("Holdable") && !IsHolding)
 			{
-				PlayerWidget->ShowHold(true);
+				PlayerWidget->ShowInteract(true, "R to take");
 			}
+
+			
 		}
 		else
 		{
 			CurrentInteractActor = nullptr;
-			PlayerWidget->ShowInteract(false, "");
+			PlayerWidget->ShowName(false, "");
 			PlayerWidget->ShowInspect(false);
-			PlayerWidget->ShowHold(false);
+			PlayerWidget->ShowInteract(false, "");
 		}
 	}
 }
@@ -189,13 +237,13 @@ void AProjectXcapeCharacter::InspectEnter()
 	auto InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	
 
-	if (!IsInspecting && !IsHolding && CurrentInteractActor != nullptr && CurrentInteractActor->ActorHasTag("Interactible"))
+	if (!IsInspecting && !IsHolding && CurrentInteractActor != nullptr && CurrentInteractActor->ActorHasTag("Inspectable"))
 	{
 		InputSubsystem->RemoveMappingContext(DefaultMappingContext);
 		InputSubsystem->AddMappingContext(InspectMappingContext, 0);
 		IsInspecting = true;
+		PlayerWidget->ShowName(false, "");
 		PlayerWidget->ShowInteract(false, "");
-		PlayerWidget->ShowHold(false);
 		PlayerWidget->ShowInspect(false);
 		InspectOrigin->SetRelativeRotation(FRotator::ZeroRotator);
 		InitialItemTransform = CurrentInteractActor->GetActorTransform();
@@ -229,30 +277,53 @@ void AProjectXcapeCharacter::InspectRotate(const FInputActionValue& Value)
 	InspectOrigin->SetRelativeRotation(InspectOrigin->GetRelativeRotation() + FRotator(LookAxisVector.Y, LookAxisVector.X, 0));
 }
 
-void AProjectXcapeCharacter::HoldItem()
+void AProjectXcapeCharacter::Interact()
 {
 
-	if(CurrentInteractActor && CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
+	if (CurrentInteractActor)
 	{
-		IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
-		if (Interactible)
+		auto Brazier = Cast<ABrazierBowl>(CurrentInteractActor);
+		if (Brazier)
 		{
-			Interactible->Interact(this);
+			if (CurrentHeldItem)
+			{
+				auto Torch = Cast<ATorch>(CurrentHeldItem);
+				if (Torch)
+				{
+					if (Brazier->IsLit && !Torch->IsLit)
+					{
+						Torch->LightTorch();
+					}
+					else if (!Brazier->IsLit && Torch->IsLit)
+					{
+						Brazier->LightFire();
+					}
+				}
+			}
+		}
+		else if (CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
+		{
+			IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
+			if (Interactible)
+			{
+				Interactible->Interact(this);
+			}
 		}
 	}
 	
+	
 	if (IsHolding)
 	{
-		DropItem();
+		//DropItem();
 		return;
 	}
 	
 	if (!IsHolding && CurrentInteractActor != nullptr && CurrentInteractActor->ActorHasTag("Holdable"))
 	{
 		IsHolding = true;
-		PlayerWidget->ShowInteract(false, "");
+		PlayerWidget->ShowName(false, "");
 		PlayerWidget->ShowInspect(false);
-		PlayerWidget->ShowHold(false);
+		PlayerWidget->ShowInteract(false, "");
 		HoldOrigin->SetRelativeRotation(FRotator(-10.f, 0.f, -5.f));
 		CurrentHeldItem = CurrentInteractActor;
 		InitialItemTransform = CurrentHeldItem->GetActorTransform();
@@ -275,6 +346,17 @@ void AProjectXcapeCharacter::PlaceItem()
 {
 }
 
+void AProjectXcapeCharacter::CycleInventoryUp()
+{
+	
+}
+
+void AProjectXcapeCharacter::CycleInventoryDown()
+{
+	
+}
+
+
 void AProjectXcapeCharacter::Pause()
 {
 
@@ -282,9 +364,9 @@ void AProjectXcapeCharacter::Pause()
 	{
 		bool isPaused = UGameplayStatics::IsGamePaused(GetWorld());
 		UGameplayStatics::SetGamePaused(GetWorld(), !isPaused);
-		PlayerWidget->ShowInteract(false, "");
+		PlayerWidget->ShowName(false, "");
 		PlayerWidget->ShowInspect(false);
-		PlayerWidget->ShowHold(false);
+		PlayerWidget->ShowInteract(false, "");
 		PlayerWidget->ShowPauseMenu(!isPaused);
 		pauseSelectIndex = 0;
 		PlayerWidget->UpdateSelected(pauseSelectIndex);

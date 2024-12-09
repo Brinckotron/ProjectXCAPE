@@ -35,7 +35,13 @@ class AProjectXcapeCharacter : public ACharacter
 	UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
-	UInputAction* HoldAction;
+	UInputAction* InteractAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* InventoryCycleUpAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	UInputAction* InventoryCycleDownAction;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	UInputAction* InspectEnterAction;
@@ -99,9 +105,11 @@ protected:
 	void InspectEnter();
 	void InspectExit();
 	void InspectRotate(const FInputActionValue& Value);
-	void HoldItem();
+	void Interact();
 	void DropItem();
 	void PlaceItem();
+	void CycleInventoryUp();
+	void CycleInventoryDown();
 
 	void Pause();
 	void SelectUp();
@@ -131,6 +139,9 @@ public:
 	float mouseSensitivity;
 	virtual void Tick(float DeltaSeconds) override;
 	AActor* CurrentHeldItem;
+	TArray<AActor*> Inventory;
+	int CurrentItemIndex;
+	
 
 private:
 	UPROPERTY()
@@ -142,5 +153,7 @@ private:
 	bool IsHolding;
 
 	AActor* CurrentInteractActor;
+
+	
 };
 

@@ -4,18 +4,29 @@
 
 #include "CoreMinimal.h"
 #include "InventoryItem.h"
-#include "Components/BoxComponent.h"
+#include "NiagaraComponent.h"
+#include "Components/PointLightComponent.h"
 #include "GameFramework/Actor.h"
-#include "StoneTablet.generated.h"
+#include "Torch.generated.h"
 
 UCLASS()
-class AStoneTablet : public AActor, public IInventoryItem
+class ATorch : public AActor, public IInventoryItem
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AStoneTablet();
+	ATorch();
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* TorchHandle;
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* TorchTip;
+	UPROPERTY(EditAnywhere)
+	UNiagaraComponent* TorchFlame;
+	UPROPERTY(EditAnywhere)
+	UPointLightComponent* TorchLight;
+	
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,16 +35,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
-	UStaticMeshComponent* Tablet;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
-	int32 TabletID;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString TabletName;
-
 	virtual FString ItemName() override;
+	bool IsLit;
+
+	void LightTorch();
+	void ExtinguishTorch();
 
 };

@@ -4,18 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "InventoryItem.h"
-#include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
-#include "StoneTablet.generated.h"
+#include "EmptyHand.generated.h"
 
 UCLASS()
-class AStoneTablet : public AActor, public IInventoryItem
+class AEmptyHand : public AActor, public IInventoryItem
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AStoneTablet();
+	AEmptyHand();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,16 +23,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
-	UStaticMeshComponent* Tablet;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Puzzle")
-	int32 TabletID;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString TabletName;
-
 	virtual FString ItemName() override;
 
 };

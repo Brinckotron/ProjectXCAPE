@@ -16,11 +16,11 @@ class UPlayerWidget : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-	void ShowInteract(bool Visible, const FString& Name);
+	void ShowName(bool Visible, const FString& Name);
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowInspect(bool Visible);
 	UFUNCTION(BlueprintImplementableEvent)
-	void ShowHold(bool Visible);
+	void ShowInteract(bool Visible, const FString& Text);
 	UFUNCTION(BlueprintImplementableEvent)
 	void ShowPauseMenu(bool Visible);
 	UFUNCTION(BlueprintImplementableEvent)
