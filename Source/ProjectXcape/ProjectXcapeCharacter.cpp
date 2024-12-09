@@ -56,7 +56,7 @@ AProjectXcapeCharacter::AProjectXcapeCharacter()
 	pauseSelectIndex = 0;
 	mouseSensitivity = 1.f;
 	CurrentItemIndex = 0;
-	
+	InventoryStorePoint = FVector(3000.f, 3000.f, 3000.f);
 
 }
 
@@ -73,7 +73,13 @@ void AProjectXcapeCharacter::BeginPlay()
 	PlayerWidget->ShowInteract(false, "");
 	PlayerWidget->ShowPauseMenu(false);
 	InitialItemTransform = GetActorTransform();
-	
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetInstigator();
+	EmptyHand = GetWorld()->SpawnActor<AEmptyHand>(AEmptyHand::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
+	EmptyHand->SetActorRelativeTransform(HoldOrigin->GetRelativeTransform());
+	Inventory.Add(EmptyHand);
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -152,9 +158,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 				auto Brazier = Cast<ABrazierBowl>(CurrentInteractActor);
 				if (Brazier)
 				{
-					if (CurrentHeldItem)
-					{
-						auto Torch = Cast<ATorch>(CurrentHeldItem);
+						auto Torch = Cast<ATorch>(Inventory[CurrentItemIndex]);
 						if (Torch)
 						{
 							if (Brazier->IsLit && !Torch->IsLit)
@@ -166,7 +170,6 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 								PlayerWidget->ShowInteract(true, "R to Light Brazier");
 							}
 						}
-					}
 				}
 			}
 			
@@ -285,9 +288,7 @@ void AProjectXcapeCharacter::Interact()
 		auto Brazier = Cast<ABrazierBowl>(CurrentInteractActor);
 		if (Brazier)
 		{
-			if (CurrentHeldItem)
-			{
-				auto Torch = Cast<ATorch>(CurrentHeldItem);
+				auto Torch = Cast<ATorch>(Inventory[CurrentItemIndex]);
 				if (Torch)
 				{
 					if (Brazier->IsLit && !Torch->IsLit)
@@ -299,7 +300,6 @@ void AProjectXcapeCharacter::Interact()
 						Brazier->LightFire();
 					}
 				}
-			}
 		}
 		else if (CurrentInteractActor->GetClass()->ImplementsInterface(UInteractible::StaticClass()))
 		{
@@ -311,49 +311,62 @@ void AProjectXcapeCharacter::Interact()
 		}
 	}
 	
-	
-	if (IsHolding)
+	if (CurrentInteractActor != nullptr && CurrentInteractActor->ActorHasTag("Holdable"))
 	{
-		//DropItem();
-		return;
-	}
-	
-	if (!IsHolding && CurrentInteractActor != nullptr && CurrentInteractActor->ActorHasTag("Holdable"))
-	{
-		IsHolding = true;
 		PlayerWidget->ShowName(false, "");
 		PlayerWidget->ShowInspect(false);
 		PlayerWidget->ShowInteract(false, "");
-		HoldOrigin->SetRelativeRotation(FRotator(-10.f, 0.f, -5.f));
 		CurrentHeldItem = CurrentInteractActor;
-		InitialItemTransform = CurrentHeldItem->GetActorTransform();
-		CurrentHeldItem->AttachToComponent(HoldOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		Inventory.Add(CurrentHeldItem);
+		StoreItem();
+		CurrentItemIndex = Inventory.Num()-1;
+		EquipItem();
 	}
 }
 
-void AProjectXcapeCharacter::DropItem()
+void AProjectXcapeCharacter::DouseTorch()
 {
-	IsHolding = false;
-	if (CurrentHeldItem != nullptr)
+	auto Torch = Cast<ATorch>(Inventory[CurrentItemIndex]);
+	if (Torch)
 	{
-		CurrentHeldItem->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		CurrentHeldItem->SetActorTransform(InitialItemTransform);
+		Torch->ExtinguishTorch();
 	}
-	CurrentHeldItem = nullptr;
+}
+
+void AProjectXcapeCharacter::StoreItem()
+{
+	Inventory[CurrentItemIndex]->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	Inventory[CurrentItemIndex]->SetActorLocation(InventoryStorePoint);
+	DouseTorch();
 }
 
 void AProjectXcapeCharacter::PlaceItem()
 {
+	Inventory[CurrentItemIndex]->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	//Inventory.RemoveAt(CurrentItemIndex);
+	
+}
+
+void AProjectXcapeCharacter::EquipItem()
+{
+	//Inventory[CurrentItemIndex]
+	HoldOrigin->SetRelativeRotation(FRotator(-10.f, 0.f, -5.f));
+	Inventory[CurrentItemIndex]->AttachToComponent(HoldOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
 
 void AProjectXcapeCharacter::CycleInventoryUp()
 {
+	StoreItem();
+	CurrentItemIndex = (CurrentItemIndex + 1) % Inventory.Num();
+	EquipItem();
 	
 }
 
 void AProjectXcapeCharacter::CycleInventoryDown()
 {
-	
+	StoreItem();
+	CurrentItemIndex = (CurrentItemIndex - 1 + Inventory.Num()) % Inventory.Num();
+	EquipItem();
 }
 
 

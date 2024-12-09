@@ -6,6 +6,7 @@
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "EmptyHand.h"
 #include "ProjectXcapeCharacter.generated.h"
 
 class UInputComponent;
@@ -106,8 +107,10 @@ protected:
 	void InspectExit();
 	void InspectRotate(const FInputActionValue& Value);
 	void Interact();
-	void DropItem();
+	void DouseTorch();
+	void StoreItem();
 	void PlaceItem();
+	void EquipItem();
 	void CycleInventoryUp();
 	void CycleInventoryDown();
 
@@ -141,7 +144,9 @@ public:
 	AActor* CurrentHeldItem;
 	TArray<AActor*> Inventory;
 	int CurrentItemIndex;
-	
+	UPROPERTY(EditAnywhere)
+	AEmptyHand* EmptyHand;
+	FVector InventoryStorePoint;
 
 private:
 	UPROPERTY()
