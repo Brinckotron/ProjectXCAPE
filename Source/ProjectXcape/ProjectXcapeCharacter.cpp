@@ -23,6 +23,8 @@
 #include "Torch.h"
 #include "Statuette.h"
 #include "StatuetteBase.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
+#include "Perception/AISense_Sight.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -59,6 +61,7 @@ AProjectXcapeCharacter::AProjectXcapeCharacter()
 	mouseSensitivity = 1.f;
 	CurrentItemIndex = 0;
 	InventoryStorePoint = FVector(3000.f, 3000.f, 3000.f);
+	SetupStimulusSource();
 
 }
 
@@ -335,6 +338,16 @@ void AProjectXcapeCharacter::ShakeCamera()
 		Guy->ClientStartCameraShake(CameraShake, 1);
 	}
 	
+}
+
+void AProjectXcapeCharacter::SetupStimulusSource()
+{
+	StimulusSource = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>("Stimulus");
+	if (StimulusSource)
+	{
+		StimulusSource->RegisterForSense(TSubclassOf<UAISense_Sight>());
+		StimulusSource->RegisterWithPerceptionSystem();
+	}
 }
 
 void AProjectXcapeCharacter::EquipItem()

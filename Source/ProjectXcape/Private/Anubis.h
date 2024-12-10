@@ -19,34 +19,36 @@ public:
 	// Sets default values for this character's properties
 	AAnubis();
 	UPROPERTY(EditAnywhere)
-	USceneComponent* Root;
-	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* AnubisMesh;
-	UPROPERTY(EditAnywhere)
 	USpotLightComponent* LeftLight;
 	UPROPERTY(EditAnywhere)
 	USpotLightComponent* RightLight;
+	TArray<AActor*> TempWaypoints;
 	UPROPERTY(EditAnywhere)
-	TArray<AActor*> Waypoints;
+	TArray<AAnubisWaypoint*> Waypoints;
 	UPROPERTY(EditAnywhere)
 	int CurrentWaypointIndex;
 	AProjectXcapeCharacter* Player;
 
 	//AI
 	UBehaviorTree* GetBehaviourTree() const;
+
+	UFUNCTION()
+	void PlayAttackMontage();
 	
 	
 	//Animation
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UAnimMontage> WalkAnimMontage;
+	TObjectPtr<UAnimMontage> AttackAnimMontage;
 	
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	TArray<AAnubisWaypoint*> SortWaypoints(TArray<AActor*> wplist);
+
 	//AI
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category ="AI")
 	UBehaviorTree* Tree;
 
 public:	

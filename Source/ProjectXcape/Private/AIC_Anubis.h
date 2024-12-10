@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Anubis.h"
+#include "Perception/AIPerceptionTypes.h"
 #include "AIC_Anubis.generated.h"
 
 /**
@@ -16,7 +18,22 @@ class AAIC_Anubis : public AAIController
 
 public:
 	explicit AAIC_Anubis(FObjectInitializer const& ObjectInitializer);
+	void Activate();
+	AActor* FindWaypoint();
+	FVector FindPlayer();
+	void Attack();
+	UPROPERTY(EditAnywhere)
+	bool IsActivated;
 
 protected:
+	AAnubis* Anubis;
 	virtual void OnPossess(APawn* InPawn) override;
+
+private:
+	class UAISenseConfig_Sight* SightConfig;
+
+	void SetupPerceptionSystem();
+
+	UFUNCTION()
+	void OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus);
 };

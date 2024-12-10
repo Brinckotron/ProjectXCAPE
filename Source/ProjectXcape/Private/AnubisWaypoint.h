@@ -3,30 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
+#include "GameFramework/Actor.h"
 #include "AnubisWaypoint.generated.h"
 
-
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class UAnubisWaypoint : public USceneComponent
+UCLASS()
+class AAnubisWaypoint : public AActor
 {
 	GENERATED_BODY()
-
+	
 public:	
-	// Sets default values for this component's properties
-	UAnubisWaypoint();
+	// Sets default values for this actor's properties
+	AAnubisWaypoint();
 	UPROPERTY(EditAnywhere)
 	USceneComponent* Waypoint;
 	UPROPERTY(EditAnywhere)
 	int OrderNumber;
 
 protected:
-	// Called when the game starts
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
 	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void Tick(float DeltaTime) override;
 
-		
 };

@@ -164,6 +164,9 @@ private:
 
 	AActor* CurrentInteractActor;
 
+	class UAIPerceptionStimuliSourceComponent* StimulusSource;
+	void SetupStimulusSource();
+
 	
 };
 

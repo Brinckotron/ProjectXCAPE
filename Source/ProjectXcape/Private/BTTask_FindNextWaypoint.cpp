@@ -5,6 +5,7 @@
 
 #include "AIC_Anubis.h"
 #include "NavigationSystem.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 UBTTask_FindNextWaypoint::UBTTask_FindNextWaypoint(FObjectInitializer const& ObjectInitializer)
 {
@@ -15,18 +16,13 @@ EBTNodeResult::Type UBTTask_FindNextWaypoint::ExecuteTask(UBehaviorTreeComponent
 {
 	if (auto* const cont = Cast<AAIC_Anubis>(OwnerComp.GetAIOwner()))
 	{
-		if (auto* const anubis = cont->GetPawn())
-		{
-			auto const Origin = anubis->GetActorLocation();
-
-			if (auto* const NavSys = UNavigationSystemV1::GetCurrent(GetWorld()))
-			{
-				FNavLocation loc;
-				
-			}
-		}
+		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), cont->FindWaypoint()->GetActorLocation());
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		return EBTNodeResult::Succeeded;
 	}
+
 	
-	return Super::ExecuteTask(OwnerComp, NodeMemory);
+	
+	return EBTNodeResult::Failed;
 	
 }

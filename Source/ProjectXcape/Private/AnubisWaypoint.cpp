@@ -3,33 +3,27 @@
 
 #include "AnubisWaypoint.h"
 
-// Sets default values for this component's properties
-UAnubisWaypoint::UAnubisWaypoint()
+// Sets default values
+AAnubisWaypoint::AAnubisWaypoint()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
 	Waypoint = CreateDefaultSubobject<USceneComponent>("Waypoint");
+	RootComponent = Waypoint;
 
-	// ...
 }
 
-
-// Called when the game starts
-void UAnubisWaypoint::BeginPlay()
+// Called when the game starts or when spawned
+void AAnubisWaypoint::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
 	
 }
 
-
 // Called every frame
-void UAnubisWaypoint::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void AAnubisWaypoint::Tick(float DeltaTime)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	Super::Tick(DeltaTime);
 
-	// ...
 }
 
