@@ -6,6 +6,7 @@
 #include "Interactible.h"
 #include "StoneTablet.h"
 #include "GameFramework/Actor.h"
+#include "ProjectXcape/ProjectXcapeCharacter.h"
 #include "StoneTabletSlot.generated.h"
 
 UCLASS()
@@ -16,6 +17,7 @@ class AStoneTabletSlot : public AActor, public IInteractible
 public:	
 	// Sets default values for this actor's properties
 	AStoneTabletSlot();
+	AProjectXcapeCharacter* Player;
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,8 +26,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	virtual void Interact(AActor* Interactor) override;
-	virtual FString ShowInteractText(AActor* Interactor) override;
+	virtual void Interact() override;
+	virtual FString ShowInteractText() override;
 	virtual FString ShowName() override;
 
 	UPROPERTY(VisibleAnywhere)

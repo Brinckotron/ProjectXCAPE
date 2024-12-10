@@ -4,6 +4,7 @@
 #include "StatuetteBase.h"
 
 #include "Statuette.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProjectXcape/ProjectXcapeCharacter.h"
 
 // Sets default values
@@ -22,7 +23,16 @@ AStatuetteBase::AStatuetteBase()
 void AStatuetteBase::BeginPlay()
 {
 	Super::BeginPlay();
+	Player = Cast<AProjectXcapeCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
 	
+}
+
+void AStatuetteBase::OpenDoor()
+{
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget = this;
+	FTransform OriginalTransform = Door->GetTransform();
+	UKismetSystemLibrary::MoveComponentTo(Door->GetRootComponent(), OriginalTransform.GetLocation() + FVector(0.f, 0.f, 480.f), OriginalTransform.Rotator(), true, true, 10.f, true, EMoveComponentAction::Move, LatentInfo);
 }
 
 // Called every frame
@@ -32,20 +42,20 @@ void AStatuetteBase::Tick(float DeltaTime)
 
 }
 
-void AStatuetteBase::Interact(AActor* Interactor)
+void AStatuetteBase::Interact()
 {
-	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
 	auto Statuette = Cast<AStatuette>(Player->Inventory[Player->CurrentItemIndex]);
 	if (Statuette)
 	{
-		Player->PlaceItem(SlotPoint);
+		Player->PlaceItem(SlotPoint, false);
+		OpenDoor();
+		Player->ShakeCamera();
 	}
 	
 }
 
-FString AStatuetteBase::ShowInteractText(AActor* Interactor)
+FString AStatuetteBase::ShowInteractText()
 {
-	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
 	FString string;
 		auto Statuette = Cast<AStatuette>(Player->Inventory[Player->CurrentItemIndex]);
 		if (Statuette)

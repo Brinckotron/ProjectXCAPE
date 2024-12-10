@@ -165,7 +165,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 				if (Interactible)
 				{
 					Name = Interactible->ShowName();
-					PlayerWidget->ShowInteract(true,Interactible->ShowInteractText(this));
+					PlayerWidget->ShowInteract(true,Interactible->ShowInteractText());
 				}
 			}
 			
@@ -279,7 +279,7 @@ void AProjectXcapeCharacter::Interact()
 		IInteractible* Interactible = Cast<IInteractible>(CurrentInteractActor);
 		if (Interactible)
 		{
-			Interactible->Interact(this);
+			Interactible->Interact();
 		}
 	}
 	
@@ -312,13 +312,28 @@ void AProjectXcapeCharacter::StoreItem()
 	DouseTorch();
 }
 
-void AProjectXcapeCharacter::PlaceItem(USceneComponent* AttachPoint)
+void AProjectXcapeCharacter::PlaceItem(USceneComponent* AttachPoint, bool canTakeBack)
 {
 	Inventory[CurrentItemIndex]->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Inventory[CurrentItemIndex]->AttachToComponent(AttachPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	if (!canTakeBack)
+	{
+		Inventory[CurrentItemIndex]->Tags.Remove("Holdable");
+		Inventory[CurrentItemIndex]->Tags.Remove("Inspectable");
+	}
 	Inventory.RemoveAt(CurrentItemIndex);
 	CurrentItemIndex =  0;
 	EquipItem();
+	
+}
+
+void AProjectXcapeCharacter::ShakeCamera()
+{
+	APlayerController* Guy = Cast<APlayerController>(GetController());
+	if (Guy)
+	{
+		Guy->ClientStartCameraShake(CameraShake, 1);
+	}
 	
 }
 

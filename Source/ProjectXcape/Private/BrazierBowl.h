@@ -7,6 +7,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/PointLightComponent.h"
+#include "ProjectXcape/ProjectXcapeCharacter.h"
 #include "ProjectXcape/Public/Interactible.h"
 #include "BrazierBowl.generated.h"
 
@@ -30,6 +31,7 @@ public:
 	UPointLightComponent* LightSource;
 	UPROPERTY(EditAnywhere)
 	bool IsLit;
+	AProjectXcapeCharacter* Player;
 
 
 protected:
@@ -40,9 +42,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void Interact(AActor* Interactor) override;
+	virtual void Interact() override;
 
-	virtual FString ShowInteractText(AActor* Interactor) override;
+	virtual FString ShowInteractText() override;
 
 	virtual FString ShowName() override;
 

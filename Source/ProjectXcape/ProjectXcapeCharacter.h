@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CameraShake.h"
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
@@ -125,6 +126,9 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	// End of APawn interface
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UCameraShake> CameraShake;
+
 public:
 	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
@@ -146,7 +150,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	AEmptyHand* EmptyHand;
 	FVector InventoryStorePoint;
-	void PlaceItem(USceneComponent* AttachPoint);
+	void PlaceItem(USceneComponent* AttachPoint, bool canTakeBack);
+	void ShakeCamera();
 
 private:
 	UPROPERTY()

@@ -3,6 +3,7 @@
 
 #include "StoneTabletSlot.h"
 
+#include "Kismet/GameplayStatics.h"
 #include "ProjectXcape/ProjectXcapeCharacter.h"
 
 // Sets default values
@@ -24,7 +25,9 @@ AStoneTabletSlot::AStoneTabletSlot()
 void AStoneTabletSlot::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Player = Cast<AProjectXcapeCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
+
 }
 
 // Called every frame
@@ -34,20 +37,19 @@ void AStoneTabletSlot::Tick(float DeltaTime)
 
 }
 
-void AStoneTabletSlot::Interact(AActor* Interactor)
+void AStoneTabletSlot::Interact()
 {
-	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
 	auto Tablet = Cast<AStoneTablet>(Player->Inventory[Player->CurrentItemIndex]);
 	if (Tablet)
 	{
-		Player->PlaceItem(TabletSnapPoint);
+		Player->PlaceItem(TabletSnapPoint, true);
 		CurrentTablet = Tablet;
+		OnSlotUpdated.Broadcast();
 	}
 }
 
-FString AStoneTabletSlot::ShowInteractText(AActor* Interactor)
+FString AStoneTabletSlot::ShowInteractText()
 {
-	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
 	FString string;
 	auto Tablet = Cast<AStoneTablet>(Player->Inventory[Player->CurrentItemIndex]);
 	if (Tablet)

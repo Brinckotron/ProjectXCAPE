@@ -4,6 +4,7 @@
 #include "BrazierBowl.h"
 
 #include "Torch.h"
+#include "Kismet/GameplayStatics.h"
 #include "ProjectXcape/ProjectXcapeCharacter.h"
 
 // Sets default values
@@ -26,6 +27,9 @@ ABrazierBowl::ABrazierBowl()
 void ABrazierBowl::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	Player = Cast<AProjectXcapeCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
+	
 	if(FireEffect && IsLit)
 	{
 		LightFire();
@@ -44,9 +48,8 @@ void ABrazierBowl::Tick(float DeltaTime)
 
 }
 
-void ABrazierBowl::Interact(AActor* Interactor)
+void ABrazierBowl::Interact()
 {
-	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
 	auto Torch = Cast<ATorch>(Player->Inventory[Player->CurrentItemIndex]);
 	if (Torch)
 	{
@@ -61,9 +64,8 @@ void ABrazierBowl::Interact(AActor* Interactor)
 	}
 }
 
-FString ABrazierBowl::ShowInteractText(AActor* Interactor)
+FString ABrazierBowl::ShowInteractText()
 {
-	auto Player = Cast<AProjectXcapeCharacter>(Interactor);
 	FString string = "";
 
 	auto Torch = Cast<ATorch>(Player->Inventory[Player->CurrentItemIndex]);

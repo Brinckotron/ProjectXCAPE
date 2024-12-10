@@ -19,6 +19,14 @@ APuzzleDoor::APuzzleDoor()
 void APuzzleDoor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	for (AStoneTabletSlot* Slot : Slots)
+	{
+		if (Slot)
+		{
+			Slot->OnSlotUpdated.AddDynamic(this, &APuzzleDoor::OnSlotUpdated);
+		}
+	}
 	
 }
 

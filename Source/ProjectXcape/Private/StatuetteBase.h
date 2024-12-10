@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Interactible.h"
 #include "GameFramework/Actor.h"
+#include "ProjectXcape/ProjectXcapeCharacter.h"
 #include "StatuetteBase.generated.h"
 
 UCLASS()
@@ -19,17 +20,22 @@ public:
 	UStaticMeshComponent* Base;
 	UPROPERTY(EditAnywhere)
 	USceneComponent* SlotPoint;
+	AProjectXcapeCharacter* Player;
+	UPROPERTY(EditAnywhere)
+	AActor* Door;
 	
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	void OpenDoor();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	virtual void Interact(AActor* Interactor) override;
-	virtual FString ShowInteractText(AActor* Interactor) override;
+	virtual void Interact() override;
+	virtual FString ShowInteractText() override;
 	virtual FString ShowName() override;
 
 };
