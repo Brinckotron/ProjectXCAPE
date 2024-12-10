@@ -32,6 +32,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool IsLit;
 	AProjectXcapeCharacter* Player;
+	UPROPERTY(EditAnywhere)
+	TArray<UMaterialInterface*> LightFunctions;
 
 
 protected:

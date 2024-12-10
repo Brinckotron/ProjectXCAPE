@@ -3,7 +3,9 @@
 
 #include "BrazierBowl.h"
 
+#include "EditorMetadataOverrides.h"
 #include "Torch.h"
+#include "Algo/RandomShuffle.h"
 #include "Kismet/GameplayStatics.h"
 #include "ProjectXcape/ProjectXcapeCharacter.h"
 
@@ -20,7 +22,6 @@ ABrazierBowl::ABrazierBowl()
 	LightSource = CreateDefaultSubobject<UPointLightComponent>("LightSource");
 	LightSource->AttachToComponent(FireEffect, FAttachmentTransformRules::KeepRelativeTransform);
 	IsLit = false;
-
 }
 
 // Called when the game starts or when spawned
@@ -29,6 +30,7 @@ void ABrazierBowl::BeginPlay()
 	Super::BeginPlay();
 	
 	Player = Cast<AProjectXcapeCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
+	LightSource->SetLightFunctionMaterial(LightFunctions[FMath::RandRange(0,4)]);
 	
 	if(FireEffect && IsLit)
 	{
