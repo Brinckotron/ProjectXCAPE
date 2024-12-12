@@ -34,6 +34,8 @@ public:
 	USceneComponent* HitBoxOrigin;
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* HitBox;
+	UPROPERTY(EditAnywhere)
+	bool IgnorePlayer;
 
 	//AI
 	UBehaviorTree* GetBehaviourTree() const;

@@ -26,6 +26,8 @@ AHugeBrazier::AHugeBrazier()
 		Fires.Add(FlameComp);
 	}
 	IsLit = false;
+	IsGreenDoorOpen = false;
+	IsPurpleDoorOpen = false;
 	currentColor = EFlameColor::Orange;
 	
 	
@@ -76,22 +78,25 @@ void AHugeBrazier::Interact()
 						{
 							currentColor = EFlameColor::Yellow;
 							Fire(1);
-							LightSource->LightColor = FColor::Yellow;
-							break;
+							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Yellow"), true);
+							ChangeLightColor(FColor::Yellow);
+							return;
 						}
 					case 2:
 						{
 							currentColor = EFlameColor::Red;
 							Fire(2);
-							LightSource->LightColor = FColor::Red;
-							break;
+							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Red"), true);
+							ChangeLightColor(FColor::Red);
+							return;
 						}
 					case 3:
 						{
 							currentColor = EFlameColor::Blue;
 							Fire(3);
-							LightSource->LightColor = FColor::Blue;
-							break;
+							GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Blue"), true);
+							ChangeLightColor(FColor::Blue);
+							return;
 						}
 				default:
 						{
@@ -107,16 +112,18 @@ void AHugeBrazier::Interact()
 					{
 						currentColor = EFlameColor::Orange;
 						Fire(0);
-						LightSource->LightColor = FColor::Orange;
-						break;
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, TEXT("Orange"), true);
+						ChangeLightColor(FColor::Orange);
+						return;
 					}
 				case 3:
 					{
 						currentColor = EFlameColor::Purple;
 						Fire(4);
-						LightSource->LightColor = FColor::Purple;
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Purple"), true);
+						ChangeLightColor(FColor::Purple);
 						OpenDoor(PurpleDoor);
-						break;
+						return;
 					}
 				default:
 					{
@@ -133,17 +140,19 @@ void AHugeBrazier::Interact()
 					{
 						currentColor = EFlameColor::Green;
 						Fire(5);
-						LightSource->LightColor = FColor::Green;
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Green"), true);
+						ChangeLightColor(FColor::Green);
 						OpenDoor(GreenDoor);
-						break;
+						return;
 					}
 				case 2:
 					{
 						currentColor = EFlameColor::Purple;
 						Fire(4);
-						LightSource->LightColor = FColor::Purple;
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Purple"), true);
+						ChangeLightColor(FColor::Purple);
 						OpenDoor(PurpleDoor);
-						break;
+						return;
 					}
 				default:
 					{
@@ -160,16 +169,18 @@ void AHugeBrazier::Interact()
 					{
 						currentColor = EFlameColor::Orange;
 						Fire(0);
-						LightSource->LightColor = FColor::Orange;
-						break;
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, TEXT("Orange"), true);
+						ChangeLightColor(FColor::Orange);
+						return;
 					}
 				case 3:
 					{
 						currentColor = EFlameColor::Green;
 						Fire(5);
-						LightSource->LightColor = FColor::Green;
+						GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Green"), true);
+						ChangeLightColor(FColor::Green);
 						OpenDoor(GreenDoor);
-						break;
+						return;
 					}
 				default:
 					{
@@ -193,6 +204,7 @@ void AHugeBrazier::Interact()
 			Fire->Deactivate();
 		}
 		currentColor = EFlameColor::Orange;
+		ChangeLightColor(FColor::Orange);
 		LightSource->SetVisibility(false);
 		IsLit = false;
 	}
@@ -236,6 +248,7 @@ void AHugeBrazier::LightFire()
 {
 	Fire(0);
 	LightSource->LightColor = FColor::Orange;
+	ChangeLightColor(FColor::Orange);
 	LightSource->SetVisibility(true);
 	IsLit = true;
 }
@@ -244,6 +257,9 @@ void AHugeBrazier::OpenDoor(AActor* Door)
 {
 	if(auto DoorComp = Cast<USceneComponent>(Door->GetRootComponent()))
 	{
+		if(Door == GreenDoor && IsGreenDoorOpen) return;
+		if(Door == PurpleDoor && IsPurpleDoorOpen) return;
+		Door == GreenDoor? IsGreenDoorOpen = true : IsPurpleDoorOpen = true;
 		FLatentActionInfo LatentInfo;
 		LatentInfo.CallbackTarget = this; 
 		FVector doorPos = DoorComp->GetRelativeLocation();
@@ -264,6 +280,14 @@ void AHugeBrazier::Fire(int i)
 		Fire->Deactivate();
 	}
 	Fires[i]->ActivateSystem();
+}
+
+void AHugeBrazier::ChangeLightColor(FColor color)
+{
+	LightSource->SetVisibility(false);
+	LightSource->LightColor = color;
+	LightSource->SetVisibility(true);
+	
 }
 
 

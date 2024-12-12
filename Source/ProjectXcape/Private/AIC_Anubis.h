@@ -27,6 +27,8 @@ public:
 	AAnubis* Anubis;
 	float sightRadius;
 	float reducedSightRadius;
+	UPROPERTY(EditAnywhere)
+	bool IgnorePlayer;
 	
 
 protected:

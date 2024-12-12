@@ -28,6 +28,8 @@ public:
 	AActor* GreenDoor;
 	UPROPERTY(EditAnywhere)
 	TArray<UNiagaraComponent*> Fires;
+	bool IsGreenDoorOpen;
+	bool IsPurpleDoorOpen;
 	bool IsLit;
 	enum class EFlameColor : uint8
 	{
@@ -50,6 +52,7 @@ public:
 	void LightFire();
 	void OpenDoor(AActor* Door);
 	void Fire(int i);
+	void ChangeLightColor(FColor color);
 
 private:
 	GENERATED_BODY()

@@ -12,6 +12,7 @@
 AAIC_Anubis::AAIC_Anubis(FObjectInitializer const& ObjectInitializer)
 {
 	IsActivated = false;
+	IgnorePlayer = false;
 	sightRadius = 1500;
 	reducedSightRadius = 750;
 	SetupPerceptionSystem();
@@ -50,9 +51,10 @@ void AAIC_Anubis::SetupPerceptionSystem()
 
 void AAIC_Anubis::UpdatePerceptionSystem(bool isAnkhEquipped)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, isAnkhEquipped? TEXT("Equipped!"): TEXT("Unequipped!"), true);
 	if(SightConfig)
 	{
+		sightRadius = IgnorePlayer? 0 : 1500;
+		reducedSightRadius = IgnorePlayer? 0 : 750;
 		SightConfig->SightRadius = isAnkhEquipped? reducedSightRadius: sightRadius;
 		SightConfig->LoseSightRadius = SightConfig->SightRadius + 100.f;
 		SightConfig->PeripheralVisionAngleDegrees = isAnkhEquipped?100.f : 160.f;
@@ -86,11 +88,13 @@ void AAIC_Anubis::Activate()
 	{
 		if (UBehaviorTree* const tree = Anubis->GetBehaviourTree())
 		{
+			IgnorePlayer = Anubis->IgnorePlayer;
 			UBlackboardComponent* bb;
 			UseBlackboard(tree->BlackboardAsset, bb);
 			Blackboard = bb;
 			RunBehaviorTree(tree);
 			IsActivated = true;
+			UpdatePerceptionSystem(false);
 		}
 	}
 }

@@ -23,6 +23,7 @@ AAnubis::AAnubis()
 	HitBoxOrigin->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	HitBox = CreateDefaultSubobject<UBoxComponent>("HitBox");
 	CurrentWaypointIndex = 0;
+	IgnorePlayer = false;
 }
 
 UBehaviorTree* AAnubis::GetBehaviourTree() const
