@@ -22,6 +22,7 @@ ABrazierBowl::ABrazierBowl()
 	LightSource = CreateDefaultSubobject<UPointLightComponent>("LightSource");
 	LightSource->AttachToComponent(FireEffect, FAttachmentTransformRules::KeepRelativeTransform);
 	IsLit = false;
+	
 }
 
 // Called when the game starts or when spawned

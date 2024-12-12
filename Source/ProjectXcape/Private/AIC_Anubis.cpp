@@ -54,6 +54,9 @@ void AAIC_Anubis::UpdatePerceptionSystem(bool isAnkhEquipped)
 	if(SightConfig)
 	{
 		SightConfig->SightRadius = isAnkhEquipped? reducedSightRadius: sightRadius;
+		SightConfig->LoseSightRadius = SightConfig->SightRadius + 100.f;
+		SightConfig->PeripheralVisionAngleDegrees = isAnkhEquipped?100.f : 160.f;
+		SightConfig->AutoSuccessRangeFromLastSeenLocation = isAnkhEquipped?400.f : 700.f;
 		GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 		GetPerceptionComponent()->ConfigureSense(*SightConfig);
 	}
