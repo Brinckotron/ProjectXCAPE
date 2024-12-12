@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "AnubisWaypoint.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Components/BoxComponent.h"
 #include "Components/SpotLightComponent.h"
+#include "Engine/TriggerBox.h"
 #include "GameFramework/Character.h"
 #include "ProjectXcape/ProjectXcapeCharacter.h"
 #include "Anubis.generated.h"
@@ -28,6 +30,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	int CurrentWaypointIndex;
 	AProjectXcapeCharacter* Player;
+	UPROPERTY(EditAnywhere)
+	USceneComponent* HitBoxOrigin;
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* HitBox;
 
 	//AI
 	UBehaviorTree* GetBehaviourTree() const;
@@ -44,6 +50,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	void RegisterNotifies();
+	void NotifySpawnTrigger();
+	void NotifyDespawnTrigger();
+	
 
 	TArray<AAnubisWaypoint*> SortWaypoints(TArray<AActor*> wplist);
 
@@ -58,4 +68,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION( )
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, 
+					  AActor* OtherActor, 
+					  UPrimitiveComponent* OtherComp, 
+					  int32 OtherBodyIndex, 
+					  bool bFromSweep, 
+					  const FHitResult &SweepResult );
 };

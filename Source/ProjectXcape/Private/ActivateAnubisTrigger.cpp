@@ -18,13 +18,14 @@ void AActivateAnubisTrigger::BeginPlay()
 
 void AActivateAnubisTrigger::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	Super::NotifyActorBeginOverlap(OtherActor);
 	if (Cast<AProjectXcapeCharacter>(OtherActor))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Trigger!"));
-		if (auto* const anubisAI = Cast<AAIC_Anubis>(Anubis->GetController()))
-		{
-			anubisAI->Activate();
-		}
-	}
+    	{
+    		UE_LOG(LogTemp, Warning, TEXT("Trigger!"));
+    		if (auto* const anubisAI = Cast<AAIC_Anubis>(Anubis->GetController()))
+    		{
+    			anubisAI->Activate();
+    		}
+    	}
+	Super::NotifyActorBeginOverlap(OtherActor);
+	
 }

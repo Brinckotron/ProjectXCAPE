@@ -24,10 +24,14 @@ public:
 	void Attack();
 	UPROPERTY(EditAnywhere)
 	bool IsActivated;
+	AAnubis* Anubis;
 
 protected:
-	AAnubis* Anubis;
+	
 	virtual void OnPossess(APawn* InPawn) override;
+	void RegisterNotifies();
+	void AttackDoneNotify();
+
 
 private:
 	class UAISenseConfig_Sight* SightConfig;

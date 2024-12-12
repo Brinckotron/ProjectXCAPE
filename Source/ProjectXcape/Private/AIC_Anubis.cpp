@@ -3,6 +3,7 @@
 
 #include "AIC_Anubis.h"
 
+#include "AnimNotify_AttackDone.h"
 #include "Anubis.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -19,6 +20,27 @@ void AAIC_Anubis::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 	Anubis = Cast<AAnubis>(InPawn);
+	RegisterNotifies();
+}
+
+void AAIC_Anubis::RegisterNotifies()
+{
+	if (Anubis->AttackAnimMontage)
+	{
+		const auto NotifyEvents = Anubis->AttackAnimMontage->Notifies;
+		for (FAnimNotifyEvent EventNotify : NotifyEvents)
+		{
+			if (const auto AttackDoneNotify = Cast<UAnimNotify_AttackDone>(EventNotify.Notify))
+			{
+				AttackDoneNotify->OnNotified.AddUObject(this,&AAIC_Anubis::AttackDoneNotify);
+			}
+		}
+	}
+}
+
+void AAIC_Anubis::AttackDoneNotify()
+{
+	GetBlackboardComponent()->SetValueAsBool("IsAttacking", false);
 }
 
 void AAIC_Anubis::SetupPerceptionSystem()
@@ -27,7 +49,7 @@ void AAIC_Anubis::SetupPerceptionSystem()
 	if (SightConfig)
 	{
 		SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>("Perception Component"));
-		SightConfig->SightRadius = 1000.f;
+		SightConfig->SightRadius = 1500.f;
 		SightConfig->LoseSightRadius = SightConfig->SightRadius + 25.f;
 		SightConfig->PeripheralVisionAngleDegrees = 160.f;
 		SightConfig->SetMaxAge(5.f);
@@ -83,4 +105,5 @@ FVector AAIC_Anubis::FindPlayer()
 void AAIC_Anubis::Attack()
 {
 	Anubis->PlayAttackMontage();
+	GetBlackboardComponent()->SetValueAsBool("IsAttacking", true);
 }
