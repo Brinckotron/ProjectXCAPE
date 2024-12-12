@@ -3,7 +3,6 @@
 
 #include "AIC_Anubis.h"
 
-#include "AnimNotify_AttackDone.h"
 #include "Anubis.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
@@ -13,6 +12,8 @@
 AAIC_Anubis::AAIC_Anubis(FObjectInitializer const& ObjectInitializer)
 {
 	IsActivated = false;
+	sightRadius = 1500;
+	reducedSightRadius = 750;
 	SetupPerceptionSystem();
 }
 
@@ -20,22 +21,6 @@ void AAIC_Anubis::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 	Anubis = Cast<AAnubis>(InPawn);
-	RegisterNotifies();
-}
-
-void AAIC_Anubis::RegisterNotifies()
-{
-	if (Anubis->AttackAnimMontage)
-	{
-		const auto NotifyEvents = Anubis->AttackAnimMontage->Notifies;
-		for (FAnimNotifyEvent EventNotify : NotifyEvents)
-		{
-			if (const auto AttackDoneNotify = Cast<UAnimNotify_AttackDone>(EventNotify.Notify))
-			{
-				AttackDoneNotify->OnNotified.AddUObject(this,&AAIC_Anubis::AttackDoneNotify);
-			}
-		}
-	}
 }
 
 void AAIC_Anubis::AttackDoneNotify()
@@ -49,17 +34,27 @@ void AAIC_Anubis::SetupPerceptionSystem()
 	if (SightConfig)
 	{
 		SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>("Perception Component"));
-		SightConfig->SightRadius = 1500.f;
-		SightConfig->LoseSightRadius = SightConfig->SightRadius + 25.f;
+		SightConfig->SightRadius = sightRadius;
+		SightConfig->LoseSightRadius = SightConfig->SightRadius + 100.f;
 		SightConfig->PeripheralVisionAngleDegrees = 160.f;
 		SightConfig->SetMaxAge(5.f);
-		SightConfig->AutoSuccessRangeFromLastSeenLocation = 500.f;
+		SightConfig->AutoSuccessRangeFromLastSeenLocation = 700.f;
 		SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 		SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 		SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-
 		GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 		GetPerceptionComponent()->OnTargetPerceptionUpdated.AddDynamic(this, &AAIC_Anubis::OnTargetDetected);
+		GetPerceptionComponent()->ConfigureSense(*SightConfig);
+	}
+}
+
+void AAIC_Anubis::UpdatePerceptionSystem(bool isAnkhEquipped)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, isAnkhEquipped? TEXT("Equipped!"): TEXT("Unequipped!"), true);
+	if(SightConfig)
+	{
+		SightConfig->SightRadius = isAnkhEquipped? reducedSightRadius: sightRadius;
+		GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 		GetPerceptionComponent()->ConfigureSense(*SightConfig);
 	}
 }
@@ -70,6 +65,16 @@ void AAIC_Anubis::OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus)
 	{
 		GetBlackboardComponent()->SetValueAsBool("CanSeePlayer", Stimulus.WasSuccessfullySensed());
 	}
+}
+
+void AAIC_Anubis::BeginPlay()
+{
+	AProjectXcapeCharacter* PlayerCharacter = Cast<AProjectXcapeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->OnAnkhUpdated.AddDynamic(this, &AAIC_Anubis::UpdatePerceptionSystem);
+	}
+	Super::BeginPlay();
 }
 
 void AAIC_Anubis::Activate()

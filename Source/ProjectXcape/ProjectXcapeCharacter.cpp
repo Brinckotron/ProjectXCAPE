@@ -1,10 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ProjectXcapeCharacter.h"
-
-#include <string>
-
-#include "ProjectXcapeProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -18,11 +14,8 @@
 #include "Engine/LocalPlayer.h"
 #include "Private/PlayerWidget.h"
 #include "Kismet/GameplayStatics.h"
-#include "Tests/AutomationCommon.h"
-#include "BrazierBowl.h"
 #include "Torch.h"
-#include "Statuette.h"
-#include "StatuetteBase.h"
+#include "Ankh.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISense_Sight.h"
 
@@ -310,6 +303,10 @@ void AProjectXcapeCharacter::DouseTorch()
 
 void AProjectXcapeCharacter::StoreItem()
 {
+	if (auto ankh = Cast<AAnkh>(Inventory[CurrentItemIndex]))
+	{
+		OnAnkhUpdated.Broadcast(false);
+	}
 	Inventory[CurrentItemIndex]->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	Inventory[CurrentItemIndex]->SetActorLocation(InventoryStorePoint);
 	DouseTorch();
@@ -352,10 +349,13 @@ void AProjectXcapeCharacter::SetupStimulusSource()
 
 void AProjectXcapeCharacter::EquipItem()
 {
-	//Inventory[CurrentItemIndex]
+	
 	HoldOrigin->SetRelativeRotation(FRotator(-10.f, 0.f, -5.f));
 	Inventory[CurrentItemIndex]->AttachToComponent(HoldOrigin, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-
+	if (auto ankh = Cast<AAnkh>(Inventory[CurrentItemIndex]))
+	{
+		OnAnkhUpdated.Broadcast(true);
+	}
 	auto Item = Cast<IInventoryItem>(Inventory[CurrentItemIndex]);
 	PlayerWidget->UpdateItem(Item->ItemName());
 }

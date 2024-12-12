@@ -25,19 +25,28 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool IsActivated;
 	AAnubis* Anubis;
+	float sightRadius;
+	float reducedSightRadius;
+	
 
 protected:
 	
 	virtual void OnPossess(APawn* InPawn) override;
-	void RegisterNotifies();
 	void AttackDoneNotify();
 
 
 private:
 	class UAISenseConfig_Sight* SightConfig;
-
+	
 	void SetupPerceptionSystem();
+	UFUNCTION()
+	void UpdatePerceptionSystem(bool isAnkhEquipped);
+
+	
 
 	UFUNCTION()
 	void OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus);
+
+protected:
+	virtual void BeginPlay() override;
 };

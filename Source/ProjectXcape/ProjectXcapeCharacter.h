@@ -18,6 +18,7 @@ class UInputMappingContext;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAnkhUpdated, bool, bIsEquipped);
 
 UCLASS(config=Game)
 class AProjectXcapeCharacter : public ACharacter
@@ -152,6 +153,9 @@ public:
 	FVector InventoryStorePoint;
 	void PlaceItem(USceneComponent* AttachPoint, bool canTakeBack);
 	void ShakeCamera();
+	UPROPERTY(BlueprintAssignable)
+	FOnAnkhUpdated OnAnkhUpdated;
+	
 
 private:
 	UPROPERTY()
