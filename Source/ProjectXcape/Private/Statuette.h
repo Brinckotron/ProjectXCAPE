@@ -32,4 +32,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual FString ItemName() override;
+	virtual FString LoreText() override;
 };

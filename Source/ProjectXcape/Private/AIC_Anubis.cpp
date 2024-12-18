@@ -13,8 +13,8 @@ AAIC_Anubis::AAIC_Anubis(FObjectInitializer const& ObjectInitializer)
 {
 	IsActivated = false;
 	IgnorePlayer = false;
-	sightRadius = 1500;
-	reducedSightRadius = 750;
+	sightRadius = 1400;
+	reducedSightRadius = 700;
 	SetupPerceptionSystem();
 }
 
@@ -37,9 +37,9 @@ void AAIC_Anubis::SetupPerceptionSystem()
 		SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>("Perception Component"));
 		SightConfig->SightRadius = sightRadius;
 		SightConfig->LoseSightRadius = SightConfig->SightRadius + 100.f;
-		SightConfig->PeripheralVisionAngleDegrees = 160.f;
+		SightConfig->PeripheralVisionAngleDegrees = 120.f;
 		SightConfig->SetMaxAge(5.f);
-		SightConfig->AutoSuccessRangeFromLastSeenLocation = 700.f;
+		SightConfig->AutoSuccessRangeFromLastSeenLocation = 500.f;
 		SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 		SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 		SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
@@ -53,15 +53,28 @@ void AAIC_Anubis::UpdatePerceptionSystem(bool isAnkhEquipped)
 {
 	if(SightConfig)
 	{
-		sightRadius = IgnorePlayer? 0 : 1500;
-		reducedSightRadius = IgnorePlayer? 0 : 750;
+		sightRadius = IgnorePlayer? 0 : 1400;
+		reducedSightRadius = IgnorePlayer? 0 : 700;
 		SightConfig->SightRadius = isAnkhEquipped? reducedSightRadius: sightRadius;
 		SightConfig->LoseSightRadius = SightConfig->SightRadius + 100.f;
-		SightConfig->PeripheralVisionAngleDegrees = isAnkhEquipped?100.f : 160.f;
-		SightConfig->AutoSuccessRangeFromLastSeenLocation = isAnkhEquipped?400.f : 700.f;
+		SightConfig->PeripheralVisionAngleDegrees = isAnkhEquipped? 90.f : 120.f;
+		SightConfig->AutoSuccessRangeFromLastSeenLocation = isAnkhEquipped? 400.f : 500.f;
 		GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 		GetPerceptionComponent()->ConfigureSense(*SightConfig);
 	}
+	if (isAnkhEquipped)
+	{
+		Anubis->GetMesh()->SetMaterial(0, Anubis->BlueEyeMat);
+		Anubis->LeftLight->SetLightFColor(FColor::Blue);
+		Anubis->RightLight->SetLightFColor(FColor::Blue);
+	}
+	else
+	{
+		Anubis->GetMesh()->SetMaterial(0, Anubis->RedEyeMat);
+		Anubis->LeftLight->SetLightFColor(FColor::Red);
+		Anubis->RightLight->SetLightFColor(FColor::Red);
+	}
+	
 }
 
 void AAIC_Anubis::OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus)
@@ -95,6 +108,8 @@ void AAIC_Anubis::Activate()
 			RunBehaviorTree(tree);
 			IsActivated = true;
 			UpdatePerceptionSystem(false);
+			Anubis->LeftLight->SetVisibility(true);
+			Anubis->RightLight->SetVisibility(true);
 		}
 	}
 }

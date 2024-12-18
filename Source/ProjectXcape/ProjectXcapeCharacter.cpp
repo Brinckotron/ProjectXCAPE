@@ -182,7 +182,7 @@ void AProjectXcapeCharacter::Tick(float DeltaSeconds)
 			}
 			if (CurrentInteractActor->ActorHasTag("Holdable"))
 			{
-				PlayerWidget->ShowInteract(true, "R to take");
+				PlayerWidget->ShowInteract(true, "Click to take");
 			}
 
 			

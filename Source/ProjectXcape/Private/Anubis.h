@@ -36,17 +36,25 @@ public:
 	UBoxComponent* HitBox;
 	UPROPERTY(EditAnywhere)
 	bool IgnorePlayer;
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* RedEyeMat;
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* BlueEyeMat;
 
 	//AI
 	UBehaviorTree* GetBehaviourTree() const;
 
 	UFUNCTION()
 	void PlayAttackMontage();
+	UFUNCTION()
+	void PlayActivateMontage();
 	
 	
 	//Animation
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UAnimMontage> AttackAnimMontage;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UAnimMontage> ActivateAnimMontage;
 	
 
 protected:
@@ -55,6 +63,7 @@ protected:
 	void RegisterNotifies();
 	void NotifySpawnTrigger();
 	void NotifyDespawnTrigger();
+	void NotifyHasRisen();
 	
 
 	TArray<AAnubisWaypoint*> SortWaypoints(TArray<AActor*> wplist);

@@ -24,4 +24,5 @@ class PROJECTXCAPE_API IInventoryItem
 public:
 
 	virtual FString ItemName() = 0;
+	virtual FString LoreText() = 0;
 };

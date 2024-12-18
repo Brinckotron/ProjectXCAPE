@@ -3,9 +3,12 @@
 
 #include "Anubis.h"
 
+#include "AIC_Anubis.h"
 #include "AnimNotify_DespawnTrigger.h"
+#include "AnimNotify_HasRisen.h"
 #include "AnimNotify_SpawnTrigger.h"
 #include "AnubisWaypoint.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -16,9 +19,9 @@ AAnubis::AAnubis()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	LeftLight = CreateDefaultSubobject<USpotLightComponent>("LeftLight");
-	LeftLight->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform);
+	LeftLight->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "LeftEyeSocket");
 	RightLight = CreateDefaultSubobject<USpotLightComponent>("RightLight");
-	RightLight->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform);
+	RightLight->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightEyeSocket");
 	HitBoxOrigin = CreateDefaultSubobject<USceneComponent>("HitBoxOrigin");
 	HitBoxOrigin->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	HitBox = CreateDefaultSubobject<UBoxComponent>("HitBox");
@@ -40,6 +43,15 @@ void AAnubis::PlayAttackMontage()
 	}
 }
 
+void AAnubis::PlayActivateMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_Play(ActivateAnimMontage, 1.0f);
+	}
+}
+
 // Called when the game starts or when spawned
 void AAnubis::BeginPlay()
 {
@@ -47,6 +59,8 @@ void AAnubis::BeginPlay()
 	Player = Cast<AProjectXcapeCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAnubisWaypoint::StaticClass(), TempWaypoints);
 	Waypoints = SortWaypoints(TempWaypoints);
+	LeftLight->SetVisibility(false);
+	RightLight->SetVisibility(false);
 
 	if (HitBox)
 	{
@@ -80,6 +94,17 @@ void AAnubis::RegisterNotifies()
 			}
 		}
 	}
+	if (ActivateAnimMontage)
+	{
+		const auto NotifyEvents = ActivateAnimMontage->Notifies;
+		for (FAnimNotifyEvent EventNotify : NotifyEvents)
+		{
+			if (const auto HasRisenNotify = Cast<UAnimNotify_HasRisen>(EventNotify.Notify))
+			{
+				HasRisenNotify->OnNotified.AddUObject(this,&AAnubis::NotifyHasRisen);
+			}
+		}
+	}
 }
 
 void AAnubis::NotifySpawnTrigger()
@@ -90,6 +115,14 @@ void AAnubis::NotifySpawnTrigger()
 void AAnubis::NotifyDespawnTrigger()
 {
 	HitBox->SetGenerateOverlapEvents(false);
+}
+
+void AAnubis::NotifyHasRisen()
+{
+	if (auto* const cont = Cast<AAIC_Anubis>(Controller))
+	{
+		cont->GetBlackboardComponent()->SetValueAsBool("IsRisen", true);
+	}
 }
 
 TArray<AAnubisWaypoint*> AAnubis::SortWaypoints(TArray<AActor*> wplist)

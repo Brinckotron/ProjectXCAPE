@@ -6,6 +6,7 @@
 #include "AIC_Anubis.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UBTTask_ChasePlayer::UBTTask_ChasePlayer(FObjectInitializer const& ObjectInitializer)
 {
@@ -18,7 +19,17 @@ EBTNodeResult::Type UBTTask_ChasePlayer::ExecuteTask(UBehaviorTreeComponent& Own
 	{
 		auto const PlayerLocation =  OwnerComp.GetBlackboardComponent()->GetValueAsVector(GetSelectedBlackboardKey());
 
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(cont, PlayerLocation);
+		if (FVector::Dist(cont->Anubis->GetActorLocation(), cont->Anubis->Player->GetActorLocation()) > 200)
+		{
+			UAIBlueprintHelperLibrary::SimpleMoveToLocation(cont, PlayerLocation);
+		}
+		else
+		{
+			cont->StopMovement();
+			cont->SetFocus(cont->Anubis->Player, EAIFocusPriority::Gameplay);
+		}
+			
+		
 		
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return EBTNodeResult::Succeeded;

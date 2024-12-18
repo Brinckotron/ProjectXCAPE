@@ -16,7 +16,7 @@ EBTNodeResult::Type UBTTask_CheckPlayerDistance::ExecuteTask(UBehaviorTreeCompon
 	if (auto* const cont = Cast<AAIC_Anubis>(OwnerComp.GetAIOwner()))
 	{
 		int distance = FVector::Dist(cont->Anubis->GetActorLocation(), cont->FindPlayer());
-		OwnerComp.GetBlackboardComponent()->SetValueAsBool(GetSelectedBlackboardKey(), distance <= 300.f );
+		OwnerComp.GetBlackboardComponent()->SetValueAsBool(GetSelectedBlackboardKey(), distance <= 200.f );
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 		return EBTNodeResult::Succeeded;
 	}

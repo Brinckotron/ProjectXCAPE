@@ -35,3 +35,8 @@ FString AStoneTablet::ItemName()
 	return TabletName;
 }
 
+FString AStoneTablet::LoreText()
+{
+	return "";
+}
+

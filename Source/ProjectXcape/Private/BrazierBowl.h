@@ -51,6 +51,5 @@ public:
 	virtual FString ShowName() override;
 
 	void LightFire();
-	
-	
+	virtual FString InspectLore() override;
 };

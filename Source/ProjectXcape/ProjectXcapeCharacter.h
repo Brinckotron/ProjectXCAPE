@@ -155,11 +155,12 @@ public:
 	void ShakeCamera();
 	UPROPERTY(BlueprintAssignable)
 	FOnAnkhUpdated OnAnkhUpdated;
+	UPROPERTY()
+	class UPlayerWidget* PlayerWidget;
 	
 
 private:
-	UPROPERTY()
-	class UPlayerWidget* PlayerWidget;
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> PlayerWidgetClass;
 

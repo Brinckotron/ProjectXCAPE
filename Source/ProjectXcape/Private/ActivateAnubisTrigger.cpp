@@ -23,7 +23,7 @@ void AActivateAnubisTrigger::NotifyActorBeginOverlap(AActor* OtherActor)
     		UE_LOG(LogTemp, Warning, TEXT("Trigger!"));
     		if (auto* const anubisAI = Cast<AAIC_Anubis>(Anubis->GetController()))
     		{
-    			anubisAI->Activate();
+    			if (!anubisAI->IsActivated)anubisAI->Activate();
     		}
     	}
 	Super::NotifyActorBeginOverlap(OtherActor);

@@ -37,3 +37,8 @@ FString AStatuette::ItemName()
 	return "Statuette of Anubis";
 }
 
+FString AStatuette::LoreText()
+{
+	return "This smaller idol seems tied to the guardian. Where might it belong?";
+}
+

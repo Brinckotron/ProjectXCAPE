@@ -40,5 +40,5 @@ public:
 
 	void LightTorch();
 	void ExtinguishTorch();
-
+	virtual FString LoreText() override;
 };

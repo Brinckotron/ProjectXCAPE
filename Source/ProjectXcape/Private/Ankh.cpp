@@ -36,3 +36,8 @@ FString AAnkh::ItemName()
 	return "Ankh of Protection";
 }
 
+FString AAnkh::LoreText()
+{
+	return "A sacred relic. It dims the beast’s sight...";
+}
+

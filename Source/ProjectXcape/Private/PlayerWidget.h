@@ -27,6 +27,8 @@ public:
 	void UpdateSelected(int index);
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateItem(const FString& Name);
+	UFUNCTION(BlueprintImplementableEvent)
+	void ShowLore(const FString& Text, float time);
 	UPROPERTY(BlueprintReadWrite)
 	float mouseSensitivity = 1.0f;
 	UPROPERTY(BlueprintReadWrite)

@@ -35,5 +35,5 @@ public:
 	FString TabletName;
 
 	virtual FString ItemName() override;
-
+	virtual FString LoreText() override;
 };

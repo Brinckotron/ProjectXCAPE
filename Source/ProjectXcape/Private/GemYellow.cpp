@@ -34,3 +34,8 @@ FString AGemYellow::ItemName()
 	return Name;
 }
 
+FString AGemYellow::LoreText()
+{
+	return "A glowing " + Name + "... What could be it's purpose?";
+}
+

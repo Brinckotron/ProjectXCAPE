@@ -25,4 +25,5 @@ public:
 	virtual void Interact() = 0;
 	virtual FString ShowInteractText() = 0;
 	virtual FString ShowName() = 0;
+	virtual FString InspectLore() = 0;
 };

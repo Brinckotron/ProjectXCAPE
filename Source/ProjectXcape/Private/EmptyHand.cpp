@@ -30,3 +30,8 @@ FString AEmptyHand::ItemName()
 	return "";
 }
 
+FString AEmptyHand::LoreText()
+{
+	return "";
+}
+

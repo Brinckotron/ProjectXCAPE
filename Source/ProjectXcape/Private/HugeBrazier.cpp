@@ -22,7 +22,7 @@ AHugeBrazier::AHugeBrazier()
 		FString ComponentName = FString::Printf(TEXT("Fire_%d"), i);
 		UNiagaraComponent* FlameComp = CreateDefaultSubobject<UNiagaraComponent>(*ComponentName);
 		FlameComp->SetupAttachment(Root);
-		FlameComp->SetAutoActivate(false); // Disable initially
+		FlameComp->SetAutoActivate(false);
 		Fires.Add(FlameComp);
 	}
 	IsLit = false;
@@ -220,20 +220,23 @@ FString AHugeBrazier::ShowInteractText()
 	{
 		if (IsLit && !Torch->IsLit)
 		{
-			string = "R to Light Torch";
+			string = "Click to Light Torch";
 		}
 		else if (!IsLit && Torch->IsLit)
 		{
-			string = "R to Light Brazier";
+			string = "Click to Light Brazier";
 		}
 	}
 	else if(Gem && IsLit)
 	{
-		string = "R to Use " + Gem->Name;
+		if ((Gem->Name == "Yellow Gem" && currentColor != EFlameColor::Yellow && currentColor != EFlameColor::Purple && currentColor != EFlameColor::Green)
+			|| (Gem->Name == "Red Gem" && currentColor != EFlameColor::Red && currentColor != EFlameColor::Purple && currentColor != EFlameColor::Green)
+			|| (Gem->Name == "Blue Gem" && currentColor != EFlameColor::Blue && currentColor != EFlameColor::Purple && currentColor != EFlameColor::Green))
+		string = "Click to Use " + Gem->Name;
 	}
 	else if (IsLit)
 	{
-		string = "R to Extinguish";
+		string = "Click to Extinguish";
 	}
 	return string;
 	
@@ -296,5 +299,10 @@ void AHugeBrazier::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+FString AHugeBrazier::InspectLore()
+{
+	return "This flame seems key. Perhaps it must burn with purpose...";
 }
 

@@ -54,7 +54,7 @@ FString AStoneTabletSlot::ShowInteractText()
 	auto Tablet = Cast<AStoneTablet>(Player->Inventory[Player->CurrentItemIndex]);
 	if (Tablet)
 	{
-		string = "R to place " + Tablet->ItemName();
+		string = "Click to place " + Tablet->ItemName();
 	}
 	return string;
 }
@@ -68,5 +68,10 @@ FString AStoneTabletSlot::ShowName()
 bool AStoneTabletSlot::IsCorrectTablet() const
 {
 	return CurrentTablet && CurrentTablet->TabletID == SlotID;
+}
+
+FString AStoneTabletSlot::InspectLore()
+{
+	return "";
 }
 

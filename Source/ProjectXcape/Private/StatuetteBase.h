@@ -37,5 +37,5 @@ public:
 	virtual void Interact() override;
 	virtual FString ShowInteractText() override;
 	virtual FString ShowName() override;
-
+	virtual FString InspectLore() override;
 };

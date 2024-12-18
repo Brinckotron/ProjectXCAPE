@@ -76,11 +76,11 @@ FString ABrazierBowl::ShowInteractText()
 	{
 		if (IsLit && !Torch->IsLit)
 		{
-			string = "R to Light Torch";
+			string = "Click to Light Torch";
 		}
 		else if (!IsLit && Torch->IsLit)
 		{
-			string = "R to Light Brazier";
+			string = "Click to Light Brazier";
 		}
 	}
 	return string;
@@ -96,5 +96,10 @@ void ABrazierBowl::LightFire()
 		FireEffect->ActivateSystem();
 		LightSource->SetVisibility(true);
 		IsLit = true;
+}
+
+FString ABrazierBowl::InspectLore()
+{
+	return "";
 }
 

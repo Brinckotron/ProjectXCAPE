@@ -60,7 +60,7 @@ FString AStatuetteBase::ShowInteractText()
 		auto Statuette = Cast<AStatuette>(Player->Inventory[Player->CurrentItemIndex]);
 		if (Statuette)
 		{
-			string = "R to place Statuette";
+			string = "Click to place Statuette";
 		}
 	return string;
 }
@@ -68,5 +68,10 @@ FString AStatuetteBase::ShowInteractText()
 FString AStatuetteBase::ShowName()
 {
 	return "Statuette Base";
+}
+
+FString AStatuetteBase::InspectLore()
+{
+	return "";
 }
 

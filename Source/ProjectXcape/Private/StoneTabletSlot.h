@@ -48,5 +48,5 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Puzzle")
 	bool IsCorrectTablet() const;
-
+	virtual FString InspectLore() override;
 };

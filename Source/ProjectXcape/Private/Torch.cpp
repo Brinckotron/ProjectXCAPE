@@ -54,3 +54,8 @@ void ATorch::ExtinguishTorch()
 	TorchLight->SetVisibility(false);
 	IsLit = false;
 }
+
+FString ATorch::LoreText()
+{
+	return "";
+}
