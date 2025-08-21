@@ -5,7 +5,7 @@
 
 ---
 
-## 🎮 Game Overview
+## Game Overview
 
 ProjectXCAPE is an immersive first-person adventure game set in an ancient Egyptian tomb. Players must navigate through atmospheric corridors, solve intricate puzzles, and evade the supernatural guardian Anubis while searching for mystical artifacts to escape the tomb alive.
 
@@ -18,7 +18,7 @@ ProjectXCAPE is an immersive first-person adventure game set in an ancient Egypt
 
 ---
 
-## 🛠️ Technical Architecture
+##  Technical Architecture
 
 ### Core Systems & Components
 
@@ -64,7 +64,7 @@ ProjectXCAPE is an immersive first-person adventure game set in an ancient Egypt
 
 ---
 
-## 🎯 Development Experience & Challenges
+## Development Experience & Challenges
 
 ### **Key Challenges Overcome**
 
@@ -112,7 +112,7 @@ Properly managed object lifetimes using UPROPERTY macros and Unreal's garbage co
 
 ---
 
-## 🚀 Skills Demonstrated
+## Skills Demonstrated
 
 ### **C++ Programming**
 - **Object-Oriented Design**: Clean inheritance hierarchies and interface implementations
@@ -145,7 +145,7 @@ Properly managed object lifetimes using UPROPERTY macros and Unreal's garbage co
 
 ---
 
-## 🏗️ Project Structure
+##  Project Structure
 
 ```
 Source/ProjectXcape/
@@ -180,7 +180,7 @@ Source/ProjectXcape/
 
 ---
 
-## 🎓 Academic Context
+## Academic Context
 
 This project was developed as the capstone assignment for the **Game Engine III** course at **College LaSalle**, focusing on:
 
@@ -194,4 +194,4 @@ The project demonstrates mastery of professional game development techniques and
 
 ---
 
-*Developed by [Your Name] | 📧 [your.email@example.com] | 🔗 [LinkedIn Profile] | 🎮 [Portfolio Website]*
+*Developed by François Brinck-Boucher with the help of George Komborozos for 3D assets | 📧 f.brinck.boucher@gmail.com | 🔗 [[LinkedIn Profile]](https://www.linkedin.com/in/fran%C3%A7ois-brinck-boucher-10868a332?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3B22%2ByTWKHSHWjwXp1MmRy4w%3D%3D) | 🎮 [Portfolio in progress]*
