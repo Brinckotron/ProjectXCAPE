@@ -194,4 +194,5 @@ The project demonstrates mastery of professional game development techniques and
 
 ---
 
-*Developed by François Brinck-Boucher with the help of George Komborozos for 3D assets | 📧 f.brinck.boucher@gmail.com | 🔗 [[LinkedIn Profile]](https://www.linkedin.com/in/fran%C3%A7ois-brinck-boucher-10868a332?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3B22%2ByTWKHSHWjwXp1MmRy4w%3D%3D) | 🎮 [Portfolio in progress]*
+*Developed by François Brinck-Boucher with the help of George Komborozos for 3D assets 
+📧 f.brinck.boucher@gmail.com | 🔗 [[LinkedIn Profile]](https://www.linkedin.com/in/fran%C3%A7ois-brinck-boucher-10868a332?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3B22%2ByTWKHSHWjwXp1MmRy4w%3D%3D) | 🎮 [Portfolio in progress]*
