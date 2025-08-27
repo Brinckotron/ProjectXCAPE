@@ -13,6 +13,7 @@ AAIC_Anubis::AAIC_Anubis(FObjectInitializer const& ObjectInitializer)
 {
 	IsActivated = false;
 	IgnorePlayer = false;
+	// Configure sight radius values for normal and Ankh-protected states
 	sightRadius = 1400;
 	reducedSightRadius = 700;
 	SetupPerceptionSystem();
@@ -53,6 +54,7 @@ void AAIC_Anubis::UpdatePerceptionSystem(bool isAnkhEquipped)
 {
 	if(SightConfig)
 	{
+		// Dynamically adjust sight parameters based on Ankh protection
 		sightRadius = IgnorePlayer? 0 : 1400;
 		reducedSightRadius = IgnorePlayer? 0 : 700;
 		SightConfig->SightRadius = isAnkhEquipped? reducedSightRadius: sightRadius;
@@ -62,6 +64,7 @@ void AAIC_Anubis::UpdatePerceptionSystem(bool isAnkhEquipped)
 		GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 		GetPerceptionComponent()->ConfigureSense(*SightConfig);
 	}
+	// Visual feedback: change eye material and light colors based on Ankh status
 	if (isAnkhEquipped)
 	{
 		Anubis->GetMesh()->SetMaterial(0, Anubis->BlueEyeMat);
@@ -87,6 +90,7 @@ void AAIC_Anubis::OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus)
 
 void AAIC_Anubis::BeginPlay()
 {
+	// Subscribe to player's Ankh status changes for dynamic perception updates
 	AProjectXcapeCharacter* PlayerCharacter = Cast<AProjectXcapeCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	if (PlayerCharacter)
 	{
@@ -119,6 +123,7 @@ AActor* AAIC_Anubis::FindWaypoint()
 	int waypointIndex = Anubis->CurrentWaypointIndex;
 	if (Anubis->Waypoints.Num() > 0)
 	{
+		// Cycle through waypoints with wrap-around for patrol behavior
 		Anubis->CurrentWaypointIndex = (Anubis->CurrentWaypointIndex + 1) % Anubis->Waypoints.Num();
 	}
 	return Anubis->Waypoints[waypointIndex];

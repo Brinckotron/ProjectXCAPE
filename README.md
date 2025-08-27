@@ -1,6 +1,8 @@
 # ProjectXCAPE
 **A 3D First-Person Puzzle Horror Game**
 
+![ProjectXCAPE Hero Image](Media/Screenshot_1.png)
+
 *Final Project for Game Engine III Course - College LaSalle*
 
 ---
@@ -36,11 +38,26 @@ ProjectXCAPE is an immersive first-person adventure game set in an ancient Egypt
 - **Animation Integration**: Custom animation montages with notify events for attack timing
 - **Dynamic Light System**: Eye lights that respond to AI state changes (Blue/Red materials)
 
+![AI Behavior Tree](Media/Screenshot_BT.png)
+*Anubis AI Behavior Tree showing the complex decision-making system*
+
+![Anubis Enemy](Media/Screenshot_4.png)
+*Anubis - The supernatural guardian of the tomb*
+
+![Anubis with Ankh Protection](Media/Screenshot_5.png)
+*Anubis encounters when player has the Ankh of Protection equipped*
+
 #### **Interaction Framework**
 - **Interface-Based Design**: Clean `IInteractible` and `IInventoryItem` interfaces for modular interactions
 - **Ray Casting System**: Precise object detection using collision queries with 180-unit range
 - **Context-Sensitive UI**: Dynamic display of interaction prompts and object information
 - **Tag-Based Classification**: Efficient object categorization using Unreal's tag system
+
+![Item Inspection Mode](Media/Screenshot_2.png)
+*Item inspection mode showing detailed 3D object examination*
+
+![UI Implementation](Media/Screenshot_3.png)
+*Context-sensitive UI implementation for object interactions*
 
 #### **Puzzle System (`PuzzleDoor`, `StoneTablet`, `StoneTabletSlot`)**
 - **Modular Puzzle Design**: Component-based puzzle pieces that can be easily reconfigured
@@ -137,6 +154,9 @@ Properly managed object lifetimes using UPROPERTY macros and Unreal's garbage co
 - **Backtracking Incentives**: Prying tool design encouraging revisitation of previous areas for thorough exploration
 - **Environmental Storytelling**: Integrated narrative elements through puzzle placement and magical wall reveals
 - **Player Agency**: Multiple solution paths and discovery-based progression that rewards curiosity
+
+![Colored Gems System](Media/Screenshot_6.png)
+*Huge Brazier with colored gems system - part of the color-based magic mechanics*
 
 ### **Project Management**
 - **Cross-Disciplinary Collaboration**: Effective communication with artists and designers

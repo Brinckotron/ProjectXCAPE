@@ -9,7 +9,7 @@
 #include "AIC_Anubis.generated.h"
 
 /**
- * 
+ * AI Controller for Anubis enemy with dynamic perception system
  */
 UCLASS()
 class AAIC_Anubis : public AAIController
@@ -25,6 +25,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool IsActivated;
 	AAnubis* Anubis;
+	// Sight radius values for normal and Ankh-protected states
 	float sightRadius;
 	float reducedSightRadius;
 	UPROPERTY(EditAnywhere)
@@ -41,11 +42,11 @@ private:
 	class UAISenseConfig_Sight* SightConfig;
 	
 	void SetupPerceptionSystem();
+	// Dynamic perception adjustment based on player's Ankh status
 	UFUNCTION()
 	void UpdatePerceptionSystem(bool isAnkhEquipped);
 
-	
-
+	// AI perception callback for player detection
 	UFUNCTION()
 	void OnTargetDetected(AActor* Actor, FAIStimulus const Stimulus);
 

@@ -18,6 +18,7 @@ class UInputMappingContext;
 struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
+// Delegate to notify AI when Ankh protection status changes
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAnkhUpdated, bool, bIsEquipped);
 
 UCLASS(config=Game)
@@ -135,6 +136,7 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+	// Transform points for item inspection and holding positions
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* InspectOrigin;
 	UPROPERTY(VisibleAnywhere)
@@ -146,10 +148,12 @@ public:
 	float mouseSensitivity;
 	virtual void Tick(float DeltaSeconds) override;
 	AActor* CurrentHeldItem;
+	// Dynamic inventory system with cyclic navigation
 	TArray<AActor*> Inventory;
 	int CurrentItemIndex;
 	UPROPERTY(EditAnywhere)
 	AEmptyHand* EmptyHand;
+	// Off-screen location for storing inactive inventory items
 	FVector InventoryStorePoint;
 	void PlaceItem(USceneComponent* AttachPoint, bool canTakeBack);
 	void ShakeCamera();
@@ -164,11 +168,13 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UUserWidget> PlayerWidgetClass;
 
+	// State tracking for interaction modes
 	bool IsInspecting;
 	bool IsHolding;
 
 	AActor* CurrentInteractActor;
 
+	// AI perception component for enemy detection
 	class UAIPerceptionStimuliSourceComponent* StimulusSource;
 	void SetupStimulusSource();
 
